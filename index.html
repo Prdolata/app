@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Prďolata</title>
+<link rel="icon" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "Segoe UI", Arial, sans-serif; color: #24324a; background: #f3f6fb; font-size: 15px; }
+  .wrap { max-width: 660px; margin: 0 auto; padding: 18px 16px 60px; }
+  header { text-align: center; padding: 6px 0 14px; }
+  header img { height: 56px; }
+  h1 { font-size: 21px; color: #263a8c; margin: 10px 0 12px; }
+  h1.stred { text-align: center; }
+  h2 { font-size: 16px; color: #263a8c; margin: 26px 0 10px; }
+  .lead { color: #5b6b85; margin: 0 0 14px; line-height: 1.5; }
+  .card { background: #fff; border-radius: 14px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,.06); border: 2px solid transparent; }
+  .card.over { border-color: #2c7bb6; background: #eef6fd; }
+  .hint { font-size: 13px; color: #6b7a92; line-height: 1.5; }
+  .chyba { color: #b00020; font-weight: 600; }
+  .ok { color: #1f6b3a; font-weight: 600; }
+  .stav { border-radius: 12px; padding: 14px 16px; line-height: 1.5; margin-bottom: 14px; }
+  .s-ok { background: #d9f0d9; } .s-info { background: #e8f1fb; } .s-off { background: #eef1f6; color: #4a5568; } .s-win { background: #fff3c4; }
+  .nacitam { text-align: center; color: #6b7a92; padding: 50px 0; }
+  .err { background: #fff; border-radius: 12px; padding: 24px; text-align: center; margin-top: 30px; line-height: 1.6; }
+  footer { text-align: center; font-size: 12px; color: #8a97ab; margin-top: 30px; }
+  footer a { color: #8a97ab; }
+  button:disabled { opacity: .5; }
+  /* podklady */
+  .bar { height: 8px; background: #dfe7f2; border-radius: 6px; overflow: hidden; margin: 6px 0 4px; }
+  .bar i { display: block; height: 100%; background: #2e8b57; width: 0; transition: width .4s; }
+  .pr { font-size: 13px; color: #5b6b85; margin-bottom: 18px; }
+  .top { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+  .nazev { font-weight: 700; }
+  .popis { font-size: 13px; color: #6b7a92; margin-top: 3px; line-height: 1.4; }
+  .badge { font-size: 12px; font-weight: 700; padding: 4px 9px; border-radius: 12px; white-space: nowrap; }
+  .b-ok { background: #d9f0d9; color: #1f6b3a; } .b-ceka { background: #fde7c4; color: #8a5300; } .b-chybi { background: #eef1f6; color: #6b7a92; }
+  .akce { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .btn { display: inline-block; background: #2c7bb6; color: #fff; border: 0; border-radius: 9px; padding: 10px 14px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .btn.sec { background: #eef3f9; color: #263a8c; }
+  .btn.big { width: 100%; padding: 14px; font-size: 16px; background: #2e8b57; margin-top: 8px; }
+  .msg { font-size: 13px; margin-top: 8px; }
+  label.f { display: block; font-size: 13px; font-weight: 700; color: #263a8c; margin: 12px 0 4px; }
+  input[type=text], textarea { width: 100%; padding: 10px; border: 1px solid #c9d3e0; border-radius: 8px; font-size: 15px; font-family: inherit; }
+  textarea { min-height: 70px; }
+  .rok { width: 74px !important; padding: 8px !important; }
+  /* SOS */
+  .sos-badge { display: inline-block; background: #e8473c; color: #fff; font-weight: 800; font-size: 13px; padding: 4px 10px; border-radius: 12px; letter-spacing: .5px; }
+  .r { display: flex; gap: 10px; padding: 7px 0; border-bottom: 1px solid #eef1f6; }
+  .r:last-child { border-bottom: 0; }
+  .k { width: 92px; color: #6b7a92; flex: 0 0 92px; }
+  .v { font-weight: 600; }
+  .btns { display: flex; gap: 10px; margin-top: 4px; }
+  .velke { flex: 1; border: 0; border-radius: 12px; padding: 16px; font-size: 17px; font-weight: 800; cursor: pointer; font-family: inherit; }
+  .ano { background: #2e8b57; color: #fff; } .ne { background: #eef1f6; color: #4a5568; }
+  .link { background: none; border: 0; color: #2c7bb6; text-decoration: underline; cursor: pointer; font-size: 14px; padding: 8px 0; font-family: inherit; }
+  /* smlouva */
+  .smlouva { max-height: 60vh; overflow-y: auto; border: 1px solid #e3e8f0; border-radius: 10px; padding: 16px 16px 6px; line-height: 1.55; font-size: 14px; background: #fcfdff; }
+  .smlouva p { margin: 0 0 9px; white-space: pre-wrap; }
+  .smlouva .titul { font-weight: 800; font-size: 16px; text-align: center; margin-bottom: 14px; }
+  .smlouva .sekce { font-weight: 800; margin-top: 16px; }
+  .smlouva .pod { font-weight: 700; margin-top: 8px; }
+  .velky-vstup { width: 100%; font-size: 17px !important; padding: 13px 14px !important; border: 1.5px solid #cfd7e4 !important; border-radius: 10px !important; }
+  .souhlas { display: flex; gap: 10px; align-items: flex-start; margin: 14px 0 4px; line-height: 1.45; font-size: 14px; }
+  .souhlas input { width: 22px; height: 22px; flex: 0 0 22px; margin-top: 1px; }
+  .podepsat { width: 100%; border: 0; border-radius: 12px; padding: 16px; font-size: 17px; font-weight: 800; cursor: pointer; background: #2e8b57; color: #fff; margin-top: 14px; font-family: inherit; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><img src="logo.png" alt="Prďolata"></header>
+  <div id="app"><div class="nacitam">Načítám…</div></div>
+  <footer>Prďolata.cz · hlídání dětí · <a href="mailto:hlidani@prdolata.cz">hlidani@prdolata.cz</a></footer>
+</div>
+<script>
+  /* Adresa skriptu (implementace „stránka pro chůvy“ – Spustit jako: já, Přístup: kdokoli). Nemění se při nové verzi. */
+  var API = 'https://script.google.com/macros/s/AKfycbyEaXG4yA92xmJIQKdnQK3OnSAsQQ9u1eNWaqmeBj_Oc4CiKyhNwN-4ad2G9MALhjqF/exec';
+
+  var $ = function (id) { return document.getElementById(id); };
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  var TOKEN = (new URLSearchParams(location.search).get('t') || new URLSearchParams(location.search).get('smlouva') || '').trim();
+  var S = null;       // data aktuální stránky
+
+  function api(akce, data) {
+    var telo = Object.assign({ akce: akce, token: TOKEN }, data || {});
+    return fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(telo), redirect: 'follow' })
+      .then(function (r) { return r.text(); })
+      .then(function (t) {
+        var j;
+        try { j = JSON.parse(t); } catch (e) { throw new Error('Server teď neodpovídá. Zkuste to prosím za chvíli znovu.'); }
+        if (!j.ok) throw new Error(j.chyba || 'Něco se pokazilo.');
+        return j.vysledek;
+      });
+  }
+  function chybaStranky(text) { $('app').innerHTML = '<div class="err">😕<br>' + esc(text) + '</div>'; }
+
+  /* ═══════════ start ═══════════ */
+  if (!/^[a-f0-9]{40}$/.test(TOKEN)) chybaStranky('Odkaz je neplatný nebo neúplný. Otevřete ho prosím znovu z e-mailu, případně nám napište na hlidani@prdolata.cz.');
+  else api('nacti').then(zobraz).catch(function (e) { chybaStranky(e.message); });
+
+  function zobraz(v) {
+    S = v.data;
+    if (v.druh === 'podklady') { document.title = 'Prďolata – podklady'; kresliPodklady(); }
+    else if (v.druh === 'sos') { document.title = 'Prďolata – hlídání'; kresliSos(); }
+    else if (v.druh === 'smlouva') { document.title = 'Prďolata – smlouva o hlídání'; kresliSmlouvu(); }
+  }
+
+  /* ═══════════ PODKLADY CHŮVY ═══════════ */
+  function kresliPodklady() {
+    var hotovo = S.polozky.filter(function (p) { return p.stav !== 'chybi' || p.nepodepisuje; }).length;
+    var pct = Math.round(100 * hotovo / S.polozky.length);
+    $('app').innerHTML =
+      '<h1>Ahoj! 👋</h1>' +
+      '<div class="hint" style="margin-bottom:8px">Podklady: <b>' + esc(S.jmeno) + '</b></div>' +
+      '<p class="lead">Sem nahraj podklady k nástupu. U každé položky klikni na <b>Nahrát</b> (na mobilu můžeš rovnou vyfotit). Nemusíš všechno najednou – na odkaz se můžeš kdykoli vrátit.</p>' +
+      '<div class="bar"><i style="width:' + pct + '%"></i></div>' +
+      '<div class="pr">Odevzdáno ' + hotovo + ' z ' + S.polozky.length + '</div>' +
+      '<h2>📎 Dokumenty</h2>' + S.polozky.map(karta).join('') +
+      '<h2>📝 Údaje</h2>' +
+      '<div class="card"><div class="hint">Údaje označené 📝 potřebujeme do smlouvy – opiš je prosím přesně podle občanky.</div>' +
+      S.udajePole.map(function (u) {
+        return '<label class="f">' + (u.smlouva ? '📝 ' : '') + esc(u.nazev) + '</label>' + (u.area
+          ? '<textarea id="u-' + u.k + '">' + esc(S.udaje[u.k] || '') + '</textarea>'
+          : '<input type="text" id="u-' + u.k + '" value="' + esc(S.udaje[u.k] || '') + '" placeholder="' + esc(u.ph || '') + '">');
+      }).join('') +
+      '<div class="akce"><button class="btn" id="u-btn" onclick="ulozUdaje()">Uložit údaje</button><span class="msg" id="u-stav"></span></div></div>' +
+      '<button class="btn big" id="hotovo" onclick="hotovoPodklady()">✅ Hotovo – dát vědět Zuzce</button>' +
+      '<div class="msg" id="h-stav" style="text-align:center"></div>';
+    S.polozky.forEach(function (p, i) { pripravDrop(i); });
+  }
+
+  function karta(p, i) {
+    var badge = p.nepodepisuje ? '<span class="badge b-ok">nepodepisuji u vás</span>'
+      : p.stav === 'ok' ? '<span class="badge b-ok">✓ máme</span>'
+      : p.stav === 'ceka' ? '<span class="badge b-ceka">nahráno' + (p.pocet > 1 ? ' (' + p.pocet + ')' : '') + '</span>'
+      : '<span class="badge b-chybi">chybí</span>';
+    var ruz = p.ruzovka ? '<span class="hint">rok</span><input type="text" class="rok" id="rok-' + i + '" value="' + S.rok + '">' +
+      (p.nepodepisuje ? '' : '<button class="btn sec" onclick="ruzovkaNe(' + i + ')">Nechci podepisovat u vás</button>') : '';
+    return '<div class="card" id="k-' + i + '">' +
+      '<div class="top"><div><div class="nazev">' + esc(p.nazev) + '</div><div class="popis">' + esc(p.popis) + '</div></div>' + badge + '</div>' +
+      '<div class="akce"><label class="btn ' + (p.stav === 'chybi' ? '' : 'sec') + '">' + (p.stav === 'chybi' ? '⬆️ Nahrát' : '⬆️ Nahrát další') +
+      '<input type="file" ' + (p.vice ? 'multiple' : '') + ' accept="image/*,application/pdf,.doc,.docx,.odt" style="display:none" onchange="nahraj(' + i + ', this.files)"></label>' + ruz + '</div>' +
+      '<div class="msg" id="s-' + i + '"></div></div>';
+  }
+
+  function pripravDrop(i) {
+    var k = $('k-' + i);
+    ['dragenter', 'dragover'].forEach(function (ev) { k.addEventListener(ev, function (e) { e.preventDefault(); k.classList.add('over'); }); });
+    ['dragleave', 'drop'].forEach(function (ev) { k.addEventListener(ev, function (e) { e.preventDefault(); k.classList.remove('over'); }); });
+    k.addEventListener('drop', function (e) { nahraj(i, e.dataTransfer.files); });
+  }
+
+  // velké fotky zmenšíme, ať se nahrávají rychle i z mobilu
+  function priprav(f) {
+    if (!/^image\/(jpeg|png|webp)$/.test(f.type) || f.size < 1.5 * 1024 * 1024 || !window.createImageBitmap) return Promise.resolve(f);
+    return createImageBitmap(f).then(function (img) {
+      var k = Math.min(1, 2400 / Math.max(img.width, img.height));
+      var c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      return new Promise(function (r) { c.toBlob(r, 'image/jpeg', 0.85); });
+    }).then(function (blob) { return blob ? new File([blob], f.name.replace(/\.\w+$/, '') + '.jpg', { type: 'image/jpeg' }) : f; })
+      .catch(function () { return f; });
+  }
+  function base64(f) {
+    return new Promise(function (res, rej) { var r = new FileReader(); r.onload = function () { res(String(r.result).split(',')[1]); }; r.onerror = rej; r.readAsDataURL(f); });
+  }
+
+  async function nahraj(i, files) {
+    var p = S.polozky[i];
+    var rok = p.ruzovka ? $('rok-' + i).value : '';
+    for (var n = 0; n < files.length; n++) {
+      var f0 = files[n];
+      $('s-' + i).innerHTML = '⏳ Nahrávám ' + esc(f0.name) + '…';
+      try {
+        var f = await priprav(f0);
+        if (f.size > 25 * 1024 * 1024) throw new Error('Soubor je větší než 25 MB.');
+        var b64 = await base64(f);
+        var v = await api('nahrat', { typ: p.typ, nazev: f.name, mime: f.type, b64: b64, rok: rok });
+        S = v.data;
+      } catch (e) { kresliPodklady(); $('s-' + i).innerHTML = '<span class="chyba">' + esc(f0.name) + ': ' + esc(e.message || e) + '</span>'; return; }
+    }
+    kresliPodklady(); $('s-' + i).innerHTML = '<span class="ok">✓ Nahráno, děkujeme!</span>';
+  }
+
+  function ruzovkaNe(i) {
+    api('ruzovkaNe', { rok: $('rok-' + i).value })
+      .then(function (v) { S = v.data; kresliPodklady(); $('s-' + i).innerHTML = '<span class="ok">✓ Zaznamenáno</span>'; })
+      .catch(function (e) { $('s-' + i).innerHTML = '<span class="chyba">' + esc(e.message) + '</span>'; });
+  }
+
+  function udajeZFormulare() { var u = {}; S.udajePole.forEach(function (x) { u[x.k] = $('u-' + x.k).value; }); return u; }
+
+  function ulozUdaje() {
+    $('u-btn').disabled = true; $('u-stav').textContent = '⏳ Ukládám…';
+    api('udaje', { udaje: udajeZFormulare() })
+      .then(function (v) { S = v.data; kresliPodklady(); $('u-stav').innerHTML = '<span class="ok">✓ Uloženo</span>'; })
+      .catch(function (e) { $('u-btn').disabled = false; $('u-stav').innerHTML = '<span class="chyba">' + esc(e.message) + '</span>'; });
+  }
+
+  function hotovoPodklady() {
+    $('hotovo').disabled = true; $('h-stav').textContent = '⏳ Odesílám…';
+    api('udaje', { udaje: udajeZFormulare() })
+      .then(function (v) { S = v.data; return api('hotovo'); })
+      .then(function () { kresliPodklady(); $('hotovo').disabled = true; $('h-stav').innerHTML = '<span class="ok">Díky! Zuzka dostala zprávu a podklady zkontroluje. 💛</span>'; })
+      .catch(function (e) { $('hotovo').disabled = false; $('h-stav').innerHTML = '<span class="chyba">' + esc(e.message) + '</span>'; });
+  }
+
+  /* ═══════════ SOS / NÁHRADA ═══════════ */
+  function radek(k, v) { return v ? '<div class="r"><div class="k">' + k + '</div><div class="v">' + esc(v) + '</div></div>' : ''; }
+
+  function kresliSos(chyba) {
+    var otevrena = S.stav === 'rozeslaná';
+    var stav = '', akce = '';
+    if (S.vybrana) stav = '<div class="stav s-win">🎉 <b>Hlídání je tvoje!</b> Díky. Podrobnosti máš i v e-mailu.</div>';
+    else if (S.odpoved === 'obsazeno' || (!otevrena && S.stav === 'obsazená')) stav = '<div class="stav s-off">Tohle hlídání je už obsazené. Díky za ochotu! 💛</div>';
+    else if (S.stav === 'zrušená') stav = '<div class="stav s-off">Tahle poptávka byla zrušená.</div>';
+    else if (!otevrena) stav = '<div class="stav s-off">Poptávka je už uzavřená.</div>';
+    else if (S.odpoved === 'mám čas') {
+      stav = '<div class="stav s-ok">✅ <b>Zájem je zaznamenaný.</b><br>Hlídání je závazně tvoje až po potvrzení od Zuzky – dáme ti vědět e-mailem.</div>';
+      akce = '<button class="link" onclick="odpovedSos(\'odvolat\')">Nakonec nemůžu – odvolat zájem</button>';
+    } else {
+      if (S.odpoved === 'nemůžu') stav = '<div class="stav s-info">Odpověděla jsi, že nemůžeš. Kdyby se to změnilo, klikni na „Mám čas“.</div>';
+      if (S.odpoved === 'odvoláno') stav = '<div class="stav s-info">Zájem jsi odvolala. Kdyby se to změnilo, klikni na „Mám čas“.</div>';
+      akce = '<div class="btns"><button class="velke ano" onclick="odpovedSos(\'ano\')">Mám čas</button>' +
+        (S.odpoved === 'nemůžu' ? '' : '<button class="velke ne" onclick="odpovedSos(\'ne\')">Nemůžu</button>') + '</div>' +
+        '<p class="hint">„Mám čas“ je jen projev zájmu. Hlídání ti potvrdí Zuzka a pošle adresu.</p>';
+    }
+    $('app').innerHTML =
+      '<span class="sos-badge">' + (S.typ === 'nahrada' ? 'NÁHRADA ZA CHŮVU' : 'SOS HLÍDÁNÍ') + '</span>' +
+      '<h1>' + (S.vybrana ? 'Potvrzené hlídání' : 'Máš čas?') + '</h1>' + stav +
+      '<div class="card">' + radek('Kdy', S.kdy) + radek('Kde', S.vybrana && S.adresa ? S.adresa : S.lokalita) + radek('Rodina', S.rodina) +
+      radek('Kontakt', S.kontakt) + radek('Děti', S.deti) + radek('Odměna', S.odmena) + radek('Poznámka', S.poznamka) + '</div>' +
+      akce + (chyba ? '<div class="chyba" style="margin-top:8px">' + esc(chyba) + '</div>' : '');
+  }
+
+  function odpovedSos(a) {
+    document.querySelectorAll('button').forEach(function (b) { b.disabled = true; });
+    api('sos', { volba: a }).then(function (v) { S = v.data; kresliSos(); }).catch(function (e) { kresliSos(e.message || String(e)); });
+  }
+
+  /* ═══════════ SMLOUVA S RODINOU ═══════════ */
+  function kresliSmlouvu() {
+    if (S.stav === 'chyba') { $('app').innerHTML = '<div class="stav s-off">' + esc(S.chyba) + '</div>'; return; }
+    if (S.stav === 'podepsano') {
+      $('app').innerHTML = '<h1 class="stred">Smlouva je podepsaná ✅</h1>' +
+        '<div class="stav s-ok">Podepsal(a): <b>' + esc(S.podepsal) + '</b><br>Kdy: ' + esc(S.podepsano) +
+        '<br><br>Podepsané vyhotovení Vám posíláme e-mailem (obvykle do 15 minut). Děkujeme!</div>';
+      return;
+    }
+    $('app').innerHTML =
+      '<h1 class="stred">Smlouva o hlídání k podpisu</h1>' +
+      '<div class="card"><div class="hint" style="margin-bottom:10px">Přečtěte si prosím smlouvu. Stejný text máte i v příloze e-mailu jako PDF.</div>' +
+      '<div class="smlouva">' + S.odstavce.map(function (o) { return '<p class="' + esc(o.typ) + '">' + esc(o.text) + '</p>'; }).join('') + '</div></div>' +
+      '<div class="card">' +
+      '<label class="f" for="jmeno" style="font-size:15px">Vaše jméno a příjmení</label>' +
+      '<input type="text" id="jmeno" class="velky-vstup" autocomplete="name" value="' + esc(S.jmeno) + '">' +
+      '<label class="souhlas"><input type="checkbox" id="souhlas"><span>Přečetl(a) jsem si smlouvu, souhlasím s jejím obsahem a podepisuji ji elektronicky. ' +
+      'Podpis se váže k e-mailu <b>' + esc(S.email) + '</b>, na který přišel tento odkaz.</span></label>' +
+      '<button class="podepsat" id="btn" type="button" onclick="podepsat()">✍️ Podepsat smlouvu</button>' +
+      '<div id="msg" class="chyba" style="margin-top:10px"></div>' +
+      '<div class="hint" style="margin-top:12px">Ke smlouvě se uloží Vaše jméno, datum a čas podpisu, e-mail a otisk textu smlouvy. Podepsané vyhotovení Vám pošleme e-mailem.</div></div>';
+  }
+
+  function podepsat() {
+    var souhlas = $('souhlas').checked, jmeno = $('jmeno').value;
+    $('msg').textContent = '';
+    if (!souhlas) { $('msg').textContent = 'Zaškrtněte prosím souhlas se smlouvou.'; return; }
+    $('btn').disabled = true; $('btn').textContent = 'Podepisuji…';
+    api('podepsat', { jmeno: jmeno, souhlas: true, zarizeni: navigator.userAgent })
+      .then(function (v) { S = v.data; kresliSmlouvu(); window.scrollTo(0, 0); })
+      .catch(function (e) { $('btn').disabled = false; $('btn').textContent = '✍️ Podepsat smlouvu'; $('msg').textContent = e.message; });
+  }
+</script>
+</body>
+</html>

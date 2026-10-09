@@ -254,7 +254,7 @@
         var st = (z.stitky || []).map(function (t) { return '<span class="stit ' + (/^(víkend|svátek)$/.test(t) ? 'v' : t === 'SOS' ? 's' : t === 'akce' ? 'a' : '') + '">' + esc(t.replace(/ ověřit$/, ' · ověřuje Zuzka')) + '</span>'; }).join('');
         return '<div class="zaz"><div class="zd">' + esc(z.datum) + '<small>' + esc(z.den) + '</small></div><div class="zr">' + esc(z.rodina === 'Akce' ? '🎉 Akce' : (z.rodina || '⚠️ rodina k doplnění')) + (z.pozn ? '<small>' + esc(z.pozn) + '</small>' : '') + (st ? '<div>' + st + '</div>' : '') + '</div>' +
           '<div class="zh">' + cisloCz(z.hodiny) + ' h<small>' + (z.doplni ? 'doplní Zuzka' : kc(z.odmena)) + (z.deti > 1 ? ' · ' + z.deti + ' děti' : '') + '</small></div>' +
-          (z.smazat ? '<button class="zx" title="Smazat" onclick="mhSmazat(\'' + esc(z.id) + '\', this)">✕</button>' : '') + '</div>';
+          (z.ceka ? '<span class="zx" style="display:grid;place-items:center" title="Ukládám">⏳</span>' : z.smazat ? '<button class="zx" title="Smazat" onclick="mhSmazat(\'' + esc(z.id) + '\', this)">✕</button>' : '') + '</div>';
       }).join('') : '<div class="hint" style="text-align:center;padding:10px 0">V tomhle měsíci zatím nic.</div>') + '</div>' +
       '<div class="hint" style="text-align:center">Sazba ' + p.sazba + ' Kč/h' + (p.aj && p.p ? ', v angličtině ' + p.p.aj + ' Kč/h' : '') + '. Navíc za každé další dítě +' + p.priplatek + ' Kč/h' +
         (p.p ? ', víkend nebo svátek +' + p.p.vikend + ' Kč/h, SOS +' + p.p.sos + ' Kč/h' : '') + '.</div></div>';
@@ -274,28 +274,70 @@
       }).catch(function () { });
     }, 300);
   }
-  function mhUlozit() {
+  /* Zápis a mazání jsou „okamžité“: seznam se upraví hned, server to dodělá na pozadí. */
+  var MH_CEKA = {}, MH_PRYC = {};          // id → dočasný záznam / smazané id (dokud server nepotvrdí)
+  function mhSoucet() {
+    var z = S.zaznamy;
+    S.soucet = { hodiny: z.reduce(function (s, x) { return s + x.hodiny; }, 0), odmena: z.reduce(function (s, x) { return s + (x.odmena || 0); }, 0), pocet: z.length };
+  }
+  /** Data ze serveru + to, co ještě čeká (aby rychlé klikání nic „nepřeskočilo“). */
+  function mhPrevezmi(d) {
+    var ids = {}; d.zaznamy.forEach(function (x) { ids[x.id] = 1; });
+    d.zaznamy = d.zaznamy.filter(function (x) { return !MH_PRYC[x.id]; });
+    Object.keys(MH_CEKA).forEach(function (id) { var x = MH_CEKA[id]; if (!ids[id] && x._mesic === d.mesic) d.zaznamy.unshift(x); });
+    S = d; mhSoucet(); mhUlozStav(); var y = window.scrollY; kresliHlidani(); window.scrollTo(0, y);
+  }
+  function mhDatumPopis(d) { var x = new Date(d + 'T12:00:00'); return { datum: x.getDate() + '. ' + (x.getMonth() + 1) + '.', den: ['ne', 'po', 'út', 'st', 'čt', 'pá', 'so'][x.getDay()] }; }
+  function mhUlozit(znovu) {
     mhUlozStav();
     if (!MH.datum) { $('mh-zpr').innerHTML = '<span class="chyba">Vyber datum.</span>'; return; }
     if (!MH.rodina && !(MH.rucne && String(MH.rucneText || '').trim())) { $('mh-zpr').innerHTML = '<span class="chyba">Vyber rodinu.</span>'; return; }
     var akce = MH.rodina === 'Akce' && !MH.rucne;
     if (akce && !String(MH.pozn || '').trim()) { $('mh-zpr').innerHTML = '<span class="chyba">Napiš do poznámky, o jakou akci šlo.</span>'; return; }
-    $('mh-btn').disabled = true; $('mh-btn').textContent = 'Ukládám…';
-    if (!MH.cid) MH.cid = Math.random().toString(16).slice(2, 10).padEnd(8, '0');
-    api('mhZapsat', { cid: MH.cid, datum: MH.datum, hodiny: MH.hodiny, deti: MH.deti, rodina: MH.rucne ? '' : MH.rodina, rucne: MH.rucne ? MH.rucneText : '', pozn: MH.pozn || '', sos: !akce && MH.sos, aj: !akce && MH.aj && S.aj ? Math.min(MH.ajH, MH.hodiny) : 0 })
-      .then(function (v) {
-        S = v.data; MH.cid = ''; MH.pozn = ''; MH.jina = false; MH.rucne = false; MH.rucneText = ''; MH.datum = S.dnes; MH.sos = false; MH.aj = false;
-        if (S.rodiny.indexOf(MH.rodina) < 0) MH.rodina = S.rodiny.length === 1 ? S.rodiny[0] : '';
-        kresliHlidani(); $('mh-zpr').innerHTML = '<span class="ok">✓ Uloženo, díky!</span>';
-      })
-      .catch(function (e) { $('mh-btn').disabled = false; $('mh-btn').textContent = 'Uložit hlídání'; $('mh-zpr').innerHTML = '<span class="chyba">' + esc(e.message) + '</span>'; });
+    var rod = MH.rucne ? '' : MH.rodina, dp = mhDatumPopis(MH.datum), mes = MH.datum.slice(0, 7);
+    // stejný zápis už v seznamu je?
+    if (!znovu && mes === S.mesic && S.zaznamy.some(function (x) { return x.datum === dp.datum && Math.abs(x.hodiny - MH.hodiny) < 0.01 && x.rodina === rod && (rod || (x.pozn || '').indexOf(MH.rucneText || '') >= 0); })) {
+      if (!confirm('Tohle hlídání už máš zapsané (' + (rod || MH.rucneText) + ', ' + dp.datum + ', ' + cisloCz(MH.hodiny) + ' h).\n\nZapsat ho opravdu ještě jednou?')) return;
+      znovu = true;
+    }
+    var cid = Math.random().toString(16).slice(2, 10).padEnd(8, '0');
+    var v = mhVypocet(), ajH = !akce && MH.aj && S.aj ? Math.min(MH.ajH, MH.hodiny) : 0;
+    var stit = []; if (akce) stit.push('akce'); if (ajH) stit.push('AJ ' + cisloCz(ajH) + ' h' + ((S.ajRodiny || []).indexOf(rod) < 0 ? ' ověřit' : '')); if (!akce && MH.sos) stit.push('SOS'); if (!akce && v.den) stit.push(v.den);
+    var q = { cid: cid, znovu: !!znovu, datum: MH.datum, hodiny: MH.hodiny, deti: MH.deti, rodina: rod, rucne: MH.rucne ? MH.rucneText : '', pozn: MH.pozn || '', sos: !akce && MH.sos, aj: ajH };
+    var tmp = { id: cid, _mesic: mes, datum: dp.datum, den: dp.den, hodiny: MH.hodiny, deti: MH.deti, odmena: akce ? 0 : v.odmena, rodina: rod, pozn: MH.rucne ? 'Rodina (napsala chůva): ' + MH.rucneText + (MH.pozn ? ' · ' + MH.pozn : '') : (MH.pozn || ''),
+      stitky: stit, doplni: akce, smazat: false, ceka: true };
+    var zaloha = Object.assign({}, MH);
+    MH_CEKA[cid] = tmp;
+    // formulář hned připravit na další zápis
+    MH.pozn = ''; MH.jina = false; MH.rucne = false; MH.rucneText = ''; MH.sos = false; MH.aj = false;
+    if (mes === S.mesic) { S.zaznamy.unshift(tmp); mhSoucet(); }
+    var y = window.scrollY; kresliHlidani(); window.scrollTo(0, y);
+    $('mh-zpr').innerHTML = '<span class="ok">✓ Uloženo, díky!</span>';
+    api('mhZapsat', q).then(function (r) {
+      delete MH_CEKA[cid];
+      if (r.data.mesic === S.mesic) mhPrevezmi(r.data);
+    }).catch(function (e) {
+      delete MH_CEKA[cid];
+      S.zaznamy = S.zaznamy.filter(function (x) { return x.id !== cid; }); mhSoucet();
+      if (/^DUPLICITA: /.test(e.message)) {
+        if (confirm(e.message.replace(/^DUPLICITA: /, '') + '\n\nZapsat ho opravdu ještě jednou?')) { MH = zaloha; kresliHlidani(); return mhUlozit(true); }
+        kresliHlidani(); return;
+      }
+      MH = zaloha; kresliHlidani();
+      $('mh-zpr').innerHTML = '<span class="chyba">Neuloženo: ' + esc(e.message) + '</span>';
+    });
   }
   function mhSmazat(id, btn) {
     if (!confirm('Smazat tenhle záznam?')) return;
-    mhUlozStav(); btn.disabled = true;
-    api('mhSmazat', { id: id }).then(function (v) { S = v.data; kresliHlidani(); }).catch(function (e) {
-      if (/nenalezen/i.test(e.message)) return mhMesic(S.mesic);   // smazal se už napoprvé
-      btn.disabled = false; alert(e.message);
+    var x = S.zaznamy.filter(function (z) { return z.id === id; })[0], mesic = S.mesic;
+    MH_PRYC[id] = 1;
+    S.zaznamy = S.zaznamy.filter(function (z) { return z.id !== id; }); mhSoucet();
+    mhUlozStav(); var y = window.scrollY; kresliHlidani(); window.scrollTo(0, y);
+    api('mhSmazat', { id: id }).then(function (v) { delete MH_PRYC[id]; if (v.data.mesic === S.mesic) mhPrevezmi(v.data); }).catch(function (e) {
+      delete MH_PRYC[id];
+      if (/nenalezen/i.test(e.message)) return;   // smazal se už napoprvé
+      if (x && S.mesic === mesic) { S.zaznamy.push(x); mhSoucet(); kresliHlidani(); }
+      alert('Nepodařilo se smazat: ' + e.message);
     });
   }
   function mhMesic(m) {

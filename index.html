@@ -158,10 +158,17 @@
   var NAHLED = new URLSearchParams(location.search).get('n') === '1';   // otevřeno z appky – nepočítat jako návštěvu
   var S = null;       // data aktuální stránky
 
-  function api(akce, data) {
+  /** Volání serveru. Když spojení s Googlem vypadne (Failed to fetch), zkusí to samo ještě 2× – zápisy mají vlastní ID, takže se nezdvojí. */
+  function api(akce, data, pokus) {
+    pokus = pokus || 0;
     var telo = Object.assign({ akce: akce, token: TOKEN }, data || {});
     return fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(telo), redirect: 'follow' })
-      .then(function (r) { return r.text(); })
+      .then(function (r) { return r.text(); }, function () {
+        if (pokus >= 2) throw new Error('Nepodařilo se spojit se serverem. Zkontroluj internet a zkus to prosím znovu.');
+        return new Promise(function (ok) { setTimeout(ok, 1200 * (pokus + 1)); })
+          .then(function () { return api(akce, Object.assign({}, data, { opakovani: true }), pokus + 1); })
+          .then(function (v) { return JSON.stringify({ ok: true, vysledek: v }); });
+      })
       .then(function (t) {
         var j;
         try { j = JSON.parse(t); } catch (e) { throw new Error('Server teď neodpovídá. Zkuste to prosím za chvíli znovu.'); }
@@ -274,9 +281,10 @@
     var akce = MH.rodina === 'Akce' && !MH.rucne;
     if (akce && !String(MH.pozn || '').trim()) { $('mh-zpr').innerHTML = '<span class="chyba">Napiš do poznámky, o jakou akci šlo.</span>'; return; }
     $('mh-btn').disabled = true; $('mh-btn').textContent = 'Ukládám…';
-    api('mhZapsat', { datum: MH.datum, hodiny: MH.hodiny, deti: MH.deti, rodina: MH.rucne ? '' : MH.rodina, rucne: MH.rucne ? MH.rucneText : '', pozn: MH.pozn || '', sos: !akce && MH.sos, aj: !akce && MH.aj && S.aj ? Math.min(MH.ajH, MH.hodiny) : 0 })
+    if (!MH.cid) MH.cid = Math.random().toString(16).slice(2, 10).padEnd(8, '0');
+    api('mhZapsat', { cid: MH.cid, datum: MH.datum, hodiny: MH.hodiny, deti: MH.deti, rodina: MH.rucne ? '' : MH.rodina, rucne: MH.rucne ? MH.rucneText : '', pozn: MH.pozn || '', sos: !akce && MH.sos, aj: !akce && MH.aj && S.aj ? Math.min(MH.ajH, MH.hodiny) : 0 })
       .then(function (v) {
-        S = v.data; MH.pozn = ''; MH.jina = false; MH.rucne = false; MH.rucneText = ''; MH.datum = S.dnes; MH.sos = false; MH.aj = false;
+        S = v.data; MH.cid = ''; MH.pozn = ''; MH.jina = false; MH.rucne = false; MH.rucneText = ''; MH.datum = S.dnes; MH.sos = false; MH.aj = false;
         if (S.rodiny.indexOf(MH.rodina) < 0) MH.rodina = S.rodiny.length === 1 ? S.rodiny[0] : '';
         kresliHlidani(); $('mh-zpr').innerHTML = '<span class="ok">✓ Uloženo, díky!</span>';
       })
@@ -285,7 +293,10 @@
   function mhSmazat(id, btn) {
     if (!confirm('Smazat tenhle záznam?')) return;
     mhUlozStav(); btn.disabled = true;
-    api('mhSmazat', { id: id }).then(function (v) { S = v.data; kresliHlidani(); }).catch(function (e) { btn.disabled = false; alert(e.message); });
+    api('mhSmazat', { id: id }).then(function (v) { S = v.data; kresliHlidani(); }).catch(function (e) {
+      if (/nenalezen/i.test(e.message)) return mhMesic(S.mesic);   // smazal se už napoprvé
+      btn.disabled = false; alert(e.message);
+    });
   }
   function mhMesic(m) {
     mhUlozStav();

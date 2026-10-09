@@ -27,6 +27,9 @@
   .stav { border-radius: 12px; padding: 14px 16px; line-height: 1.5; margin-bottom: 14px; }
   .s-ok { background: #d9f0d9; } .s-info { background: #e8f1fb; } .s-off { background: #eef1f6; color: #4a5568; } .s-win { background: #fff3c4; }
   .nacitam { text-align: center; color: #6b7a92; padding: 50px 0; }
+  .prog { width: 220px; max-width: 70%; height: 8px; margin: 14px auto 0; background: #e6e9f2; border-radius: 8px; overflow: hidden; }
+  .prog i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #F97338, #FDB38F); border-radius: 8px; transition: width .25s linear; }
+  .nacitam small { display: block; margin-top: 8px; font-size: 13px; color: #9aa3bd; }
   .err { background: #fff; border-radius: 12px; padding: 24px; text-align: center; margin-top: 30px; line-height: 1.6; }
   footer { text-align: center; font-size: 12px; color: #8a97ab; margin-top: 30px; }
   footer a { color: #8a97ab; }
@@ -145,7 +148,7 @@
 <body>
 <div class="wrap">
   <header><img src="logo.png" alt="Prďolata"></header>
-  <div id="app"><div class="nacitam">Načítám…</div></div>
+  <div id="app"><div class="nacitam"><span id="nt">Připojuji se…</span><div class="prog"><i id="np"></i></div><small id="nproc">0 %</small></div></div>
   <footer>Prďolata.cz · hlídání dětí · <a href="mailto:hlidani@prdolata.cz">hlidani@prdolata.cz</a></footer>
 </div>
 <script>
@@ -195,6 +198,17 @@
   }
   function chybaStranky(text) { $('app').innerHTML = '<div class="err">😕<br>' + esc(text) + '</div>'; }
 
+  /* Průběh načítání: jeden požadavek na server skutečná procenta nedává – ukazuje odhad podle toho, jak dlouho to trvalo minule. */
+  var NAC_START = Date.now(), NAC_ODHAD = 4500;
+  try { NAC_ODHAD = Math.min(20000, Math.max(1500, Number(localStorage.getItem('nac_ms')) || 4500)); } catch (e) { }
+  var NAC_T = setInterval(function () {
+    var el = document.getElementById('np'); if (!el) { clearInterval(NAC_T); return; }
+    var t = (Date.now() - NAC_START) / NAC_ODHAD, p = Math.min(95, Math.round(100 * (1 - Math.exp(-2.2 * t))));
+    el.style.width = p + '%'; document.getElementById('nproc').textContent = p + ' %';
+    document.getElementById('nt').textContent = p < 25 ? 'Připojuji se…' : p < 70 ? 'Načítám data…' : 'Skoro hotovo…';
+  }, 150);
+  function nacteno() { clearInterval(NAC_T); try { localStorage.setItem('nac_ms', String(Date.now() - NAC_START)); } catch (e) { } }
+
   /* ═══════════ start ═══════════ */
   if (!/^[a-f0-9]{40}$/.test(TOKEN)) chybaStranky('Odkaz je neplatný nebo neúplný. Otevřete ho prosím znovu z e-mailu, případně nám napište na hlidani@prdolata.cz.');
   else {
@@ -210,6 +224,7 @@
   }
 
   function zobraz(v) {
+    if (NAC_T) { nacteno(); NAC_T = null; }
     S = v.data;
     if (v.druh === 'podklady') { document.title = 'Prďolata – podklady'; kresliPodklady(); }
     else if (v.druh === 'sos') { document.title = 'Prďolata – hlídání'; kresliSos(); }

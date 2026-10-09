@@ -162,9 +162,9 @@
   function api(akce, data, pokus) {
     pokus = pokus || 0;
     var telo = Object.assign({ akce: akce, token: TOKEN }, data || {});
-    return fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(telo), redirect: 'follow' })
+    return fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(telo), redirect: 'follow', keepalive: /^mh(Zapsat|Smazat)$/.test(akce) })
       .then(function (r) { return r.text(); }, function () {
-        if (pokus >= 2) throw new Error('Nepodařilo se spojit se serverem. Zkontroluj internet a zkus to prosím znovu.');
+        if (pokus >= 2) { var e = new Error('Nepodařilo se spojit se serverem. Zkontroluj internet a zkus to prosím znovu.'); e.sit = true; throw e; }
         return new Promise(function (ok) { setTimeout(ok, 1200 * (pokus + 1)); })
           .then(function () { return api(akce, Object.assign({}, data, { opakovani: true }), pokus + 1); })
           .then(function (v) { return JSON.stringify({ ok: true, vysledek: v }); });
@@ -176,11 +176,38 @@
         return j.vysledek;
       });
   }
+  /* paměť v telefonu (když nejde, nevadí) */
+  var LS = {
+    get: function (k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } },
+    set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } },
+  };
+  /* Fronta zápisů: co se neodeslalo (zavřená stránka, výpadek), dopošle se při dalším otevření. Zápisy mají ID → nezdvojí se. */
+  function mhFronta() { return LS.get('mhq_' + TOKEN) || []; }
+  function mhDoFronty(akce, q) { var f = mhFronta(); f.push({ akce: akce, q: q }); LS.set('mhq_' + TOKEN, f); }
+  function mhZFronty(q) { LS.set('mhq_' + TOKEN, mhFronta().filter(function (x) { return x.q.cid !== q.cid || x.q.id !== q.id; })); }
+  function mhOdeslatFrontu() {
+    var f = mhFronta();
+    return f.reduce(function (p, x) {
+      return p.then(function () {
+        return api(x.akce, Object.assign({}, x.q, { znovu: true })).then(function () { mhZFronty(x.q); }, function (e) { if (!e.sit) mhZFronty(x.q); });
+      });
+    }, Promise.resolve());
+  }
   function chybaStranky(text) { $('app').innerHTML = '<div class="err">😕<br>' + esc(text) + '</div>'; }
 
   /* ═══════════ start ═══════════ */
   if (!/^[a-f0-9]{40}$/.test(TOKEN)) chybaStranky('Odkaz je neplatný nebo neúplný. Otevřete ho prosím znovu z e-mailu, případně nám napište na hlidani@prdolata.cz.');
-  else api('nacti', { nahled: NAHLED }).then(zobraz).catch(function (e) { chybaStranky(e.message); });
+  else {
+    var MH_PAMET = !NAHLED && LS.get('mh_' + TOKEN);   // Moje hlídání: hned ukázat poslední stav z telefonu
+    if (MH_PAMET && MH_PAMET.zaznamy) {
+      var t = new Date(); MH_PAMET.dnes = t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0');
+      if (MH_PAMET.mesic !== MH_PAMET.dnes.slice(0, 7)) { MH_PAMET.mesic = MH_PAMET.dnes.slice(0, 7); MH_PAMET.zaznamy = []; }
+      setTimeout(function () { if (!S) zobraz({ druh: 'hlidani', data: MH_PAMET }); }, 0);   // až po načtení celého skriptu
+    }
+    mhOdeslatFrontu().then(function () { return api('nacti', { nahled: NAHLED }); })
+      .then(function (v) { if (v.druh === 'hlidani' && S && S.zaznamy) mhPrevezmi(v.data); else zobraz(v); })
+      .catch(function (e) { if (!(MH_PAMET && MH_PAMET.zaznamy)) chybaStranky(e.message); });
+  }
 
   function zobraz(v) {
     S = v.data;
@@ -220,6 +247,7 @@
   function kc(n) { return Math.round(n).toLocaleString('cs-CZ') + ' Kč'; }
   function kresliHlidani() {
     document.body.style.background = '#FFF5ED';
+    if (!NAHLED) LS.set('mh_' + TOKEN, Object.assign({}, S, { zaznamy: S.zaznamy.filter(function (x) { return !x.ceka; }) }));
     var p = S, i = p.mesice.indexOf(p.mesic);
     if (!MH.rodina && p.rodiny.length === 1) MH.rodina = p.rodiny[0];
     var mm = p.mesic.split('-');
@@ -313,10 +341,14 @@
     if (mes === S.mesic) { S.zaznamy.unshift(tmp); mhSoucet(); }
     var y = window.scrollY; kresliHlidani(); window.scrollTo(0, y);
     $('mh-zpr').innerHTML = '<span class="ok">✓ Uloženo, díky!</span>';
+    mhDoFronty('mhZapsat', q);
     api('mhZapsat', q).then(function (r) {
+      mhZFronty(q);
       delete MH_CEKA[cid];
       if (r.data.mesic === S.mesic) mhPrevezmi(r.data);
     }).catch(function (e) {
+      if (e.sit) { $('mh-zpr').innerHTML = '<span class="chyba">📶 Teď to neodešlo – uložím to sama, až stránku příště otevřeš.</span>'; return; }
+      mhZFronty(q);
       delete MH_CEKA[cid];
       S.zaznamy = S.zaznamy.filter(function (x) { return x.id !== cid; }); mhSoucet();
       if (/^DUPLICITA: /.test(e.message)) {
@@ -333,8 +365,10 @@
     MH_PRYC[id] = 1;
     S.zaznamy = S.zaznamy.filter(function (z) { return z.id !== id; }); mhSoucet();
     mhUlozStav(); var y = window.scrollY; kresliHlidani(); window.scrollTo(0, y);
-    api('mhSmazat', { id: id }).then(function (v) { delete MH_PRYC[id]; if (v.data.mesic === S.mesic) mhPrevezmi(v.data); }).catch(function (e) {
-      delete MH_PRYC[id];
+    mhDoFronty('mhSmazat', { id: id });
+    api('mhSmazat', { id: id }).then(function (v) { mhZFronty({ id: id }); delete MH_PRYC[id]; if (v.data.mesic === S.mesic) mhPrevezmi(v.data); }).catch(function (e) {
+      if (e.sit) { alert('📶 Teď to neodešlo – smažu to sama, až stránku příště otevřeš.'); return; }
+      mhZFronty({ id: id }); delete MH_PRYC[id];
       if (/nenalezen/i.test(e.message)) return;   // smazal se už napoprvé
       if (x && S.mesic === mesic) { S.zaznamy.push(x); mhSoucet(); kresliHlidani(); }
       alert('Nepodařilo se smazat: ' + e.message);

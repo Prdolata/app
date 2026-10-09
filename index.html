@@ -8,6 +8,7 @@
 <title>Prďolata</title>
 <link rel="icon" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:opsz,wght@6..12,400;6..12,700;6..12,800&display=swap">
 <style>
   * { box-sizing: border-box; }
   body { margin: 0; font-family: -apple-system, "Segoe UI", Arial, sans-serif; color: #24324a; background: #f3f6fb; font-size: 15px; }
@@ -68,6 +69,39 @@
   .souhlas { display: flex; gap: 10px; align-items: flex-start; margin: 14px 0 4px; line-height: 1.45; font-size: 14px; }
   .souhlas input { width: 22px; height: 22px; flex: 0 0 22px; margin-top: 1px; }
   .podepsat { width: 100%; border: 0; border-radius: 12px; padding: 16px; font-size: 17px; font-weight: 800; cursor: pointer; background: #2e8b57; color: #fff; margin-top: 14px; font-family: inherit; }
+  /* představení chůvy */
+  .pf { font-family: "Nunito Sans", -apple-system, "Segoe UI", Arial, sans-serif; color: #213472; }
+  .pf-hero { background: #fff; border-radius: 22px; overflow: hidden; box-shadow: 0 6px 24px rgba(33,52,114,.08); margin-bottom: 14px; }
+  .pf-hero img { width: 100%; aspect-ratio: 4 / 4.4; object-fit: cover; display: block; background: #f6ece3; }
+  .pf-hero .in { padding: 18px 20px 20px; }
+  .pf-jm { font-size: 30px; font-weight: 800; margin: 0; letter-spacing: -.3px; }
+  .pf-meta { color: #F97338; font-weight: 800; font-size: 14px; letter-spacing: .3px; margin-top: 2px; }
+  .pf-pod { color: #5b6690; font-size: 16px; margin-top: 8px; line-height: 1.45; }
+  .pf-blok { background: #fff; border-radius: 18px; padding: 18px 20px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(33,52,114,.06); }
+  .pf-blok h2 { margin: 0 0 10px; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: #8a93b5; font-weight: 800; }
+  .pf-uvod p { margin: 0 0 10px; font-size: 16.5px; line-height: 1.6; }
+  .pf-uvod p:last-child { margin-bottom: 0; }
+  .pf-zk { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+  .pf-zk li { position: relative; padding-left: 28px; line-height: 1.5; font-size: 15.5px; }
+  .pf-zk li::before { content: ""; position: absolute; left: 2px; top: 4px; width: 16px; height: 16px; border-radius: 50%; background: #FFE3D3; box-shadow: inset 0 0 0 5px #F97338; }
+  .pf-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pf-chips span { background: #FFF1E7; color: #b4501f; font-weight: 700; font-size: 14px; padding: 7px 12px; border-radius: 999px; }
+  .pf-dal { display: grid; grid-template-columns: 90px 1fr; gap: 6px 12px; font-size: 15px; }
+  .pf-dal dt { color: #8a93b5; font-weight: 700; } .pf-dal dd { margin: 0; }
+  .pf-gal { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
+  .pf-gal img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 16px; display: block; }
+  .pf-gal img:only-child { grid-column: 1 / -1; aspect-ratio: 4 / 3; }
+  .pf-ref { border-left: 4px solid #F97338; padding: 2px 0 2px 14px; margin: 0 0 14px; }
+  .pf-ref:last-child { margin-bottom: 0; }
+  .pf-ref p { margin: 0; font-size: 15.5px; line-height: 1.55; font-style: italic; }
+  .pf-ref small { display: block; margin-top: 6px; color: #8a93b5; font-weight: 700; font-style: normal; }
+  .pf-over { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: #5b6690; line-height: 1.5; padding: 4px 6px 14px; }
+  .pf-cta { background: #213472; color: #fff; border-radius: 18px; padding: 20px; text-align: center; }
+  .pf-cta b { display: block; font-size: 18px; margin-bottom: 4px; }
+  .pf-cta p { margin: 0 0 14px; color: #c9d1ef; font-size: 15px; }
+  .pf-cta a { display: inline-block; background: #F97338; color: #fff; text-decoration: none; font-weight: 800; padding: 12px 18px; border-radius: 12px; margin: 4px; }
+  .pf-cta a.sec { background: rgba(255,255,255,.12); }
+  .pf-nahled { background: #fff3c4; border-radius: 10px; padding: 8px 12px; font-size: 13px; text-align: center; margin-bottom: 10px; }
 </style>
 </head>
 <body>
@@ -83,6 +117,7 @@
   var $ = function (id) { return document.getElementById(id); };
   function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
   var TOKEN = (new URLSearchParams(location.search).get('t') || new URLSearchParams(location.search).get('smlouva') || '').trim();
+  var NAHLED = new URLSearchParams(location.search).get('n') === '1';   // otevřeno z appky – nepočítat jako návštěvu
   var S = null;       // data aktuální stránky
 
   function api(akce, data) {
@@ -100,13 +135,40 @@
 
   /* ═══════════ start ═══════════ */
   if (!/^[a-f0-9]{40}$/.test(TOKEN)) chybaStranky('Odkaz je neplatný nebo neúplný. Otevřete ho prosím znovu z e-mailu, případně nám napište na hlidani@prdolata.cz.');
-  else api('nacti').then(zobraz).catch(function (e) { chybaStranky(e.message); });
+  else api('nacti', { nahled: NAHLED }).then(zobraz).catch(function (e) { chybaStranky(e.message); });
 
   function zobraz(v) {
     S = v.data;
     if (v.druh === 'podklady') { document.title = 'Prďolata – podklady'; kresliPodklady(); }
     else if (v.druh === 'sos') { document.title = 'Prďolata – hlídání'; kresliSos(); }
     else if (v.druh === 'smlouva') { document.title = 'Prďolata – smlouva o hlídání'; kresliSmlouvu(); }
+    else if (v.druh === 'profil') { document.title = S.jmeno + ' – chůva Prďolata'; kresliProfil(); }
+  }
+
+
+  /* ═══════════ PŘEDSTAVENÍ CHŮVY ═══════════ */
+  function kresliProfil() {
+    var p = S, f = p.fotky || [];
+    document.body.style.background = '#FFF5ED';
+    var odst = String(p.uvod || '').split(/\n\s*\n|\n/).filter(function (x) { return x.trim(); });
+    var dal = (p.zajmy.length ? '<dt>Zájmy</dt><dd>' + esc(p.zajmy.join(', ')) + '</dd>' : '') + (p.jazyky.length ? '<dt>Jazyky</dt><dd>' + esc(p.jazyky.join(', ')) + '</dd>' : '');
+    var tel = p.kontakt.telefon ? '<a class="sec" href="tel:' + esc(p.kontakt.telefon.replace(/[^\d+]/g, '')) + '">📞 Zavolat</a>' : '';
+    $('app').innerHTML = '<div class="pf">' +
+      (NAHLED ? '<div class="pf-nahled">Náhled – takhle stránku uvidí rodina.</div>' : '') +
+      '<div class="pf-hero">' + (f[0] ? '<img src="' + f[0] + '" alt="' + esc(p.jmeno) + '">' : '') +
+        '<div class="in"><h1 class="pf-jm">' + esc(p.jmeno) + '</h1>' + (p.hlavicka ? '<div class="pf-meta">' + esc(p.hlavicka) + '</div>' : '') +
+        (p.podtitul ? '<div class="pf-pod">' + esc(p.podtitul) + '</div>' : '') + '</div></div>' +
+      '<div class="pf-blok pf-uvod">' + odst.map(function (x) { return '<p>' + esc(x.trim()) + '</p>'; }).join('') + '</div>' +
+      (p.zkusenosti.length ? '<div class="pf-blok"><h2>Zkušenosti s dětmi</h2><ul class="pf-zk">' + p.zkusenosti.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></div>' : '') +
+      (p.pomuze.length ? '<div class="pf-blok"><h2>S čím pomůžu</h2><div class="pf-chips">' + p.pomuze.map(function (x) { return '<span>' + esc(x) + '</span>'; }).join('') + '</div></div>' : '') +
+      (dal ? '<div class="pf-blok"><dl class="pf-dal">' + dal + '</dl></div>' : '') +
+      (f.length > 1 ? '<div class="pf-gal">' + f.slice(1).map(function (x) { return '<img src="' + x + '" alt="" loading="lazy">'; }).join('') + '</div>' : '') +
+      (p.reference.length ? '<div class="pf-blok"><h2>Co o mně říkají</h2>' + p.reference.map(function (r) {
+        return '<div class="pf-ref"><p>„' + esc(r.text) + '“</p>' + (r.od ? '<small>— ' + esc(r.od) + '</small>' : '') + '</div>'; }).join('') + '</div>' : '') +
+      (p.overeno ? '<div class="pf-over"><span>🛡️</span><span>' + esc(p.overeno) + '</span></div>' : '') +
+      '<div class="pf-cta"><b>Líbí se vám ' + esc(p.jmeno) + '?</b><p>Napište nám a domluvíme první schůzku.</p>' +
+        '<a href="mailto:' + esc(p.kontakt.email) + '?subject=' + encodeURIComponent('Chůva ' + p.jmeno) + '">✉️ Napsat Zuzce</a>' + tel + '</div>' +
+      '</div>';
   }
 
   /* ═══════════ PODKLADY CHŮVY ═══════════ */

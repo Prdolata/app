@@ -233,6 +233,7 @@
         (akce ? '' : '<label class="t">Bylo to…</label><div class="chips">' +
           '<button type="button" class="tg' + (MH.sos ? ' on' : '') + '" onclick="MH.sos=!MH.sos;mhPrekresli()">🆘 SOS (narychlo)</button>' +
           (p.aj ? '<button type="button" class="tg' + (MH.aj ? ' on' : '') + '" onclick="MH.aj=!MH.aj;MH.ajH=MH.hodiny;mhPrekresli()">🇬🇧 V angličtině</button>' : '') + '</div>' +
+          (MH.aj && p.aj && (MH.rucne || (p.ajRodiny || []).indexOf(MH.rodina) < 0) ? '<div class="hint">🇬🇧 ' + (MH.rodina && !MH.rucne ? 'U rodiny ' + esc(MH.rodina) : 'U téhle rodiny') + ' zatím hlídání v angličtině nemáme – po uložení ho Zuzka potvrdí.</div>' : '') +
           (MH.aj && p.aj ? '<label class="t">Z toho v angličtině</label><div class="krok"><button type="button" onclick="mhAjH(-0.5)">−</button><b>' + (Math.min(MH.ajH, MH.hodiny) >= MH.hodiny ? 'celé' : cisloCz(MH.ajH) + ' h') + '</b><button type="button" onclick="mhAjH(0.5)">+</button></div>' : '') +
           (v.den ? '<div class="hint">📅 ' + (v.den === 'svátek' ? 'Státní svátek' : 'Víkend') + ' – příplatek se počítá sám.</div>' : '')) +
         '<label class="t" for="mh-pozn">' + (akce ? 'O jakou akci šlo' : 'Poznámka <span style="text-transform:none;font-weight:600">(nepovinné)</span>') + '</label><textarea id="mh-pozn" placeholder="' + (akce ? 'např. svatba Novákovi, hlídání dětí hostů' : 'např. vyzvedávala jsem ze školky') + '">' + esc(MH.pozn || '') + '</textarea>' +
@@ -243,7 +244,7 @@
       '<div class="mesic"><button ' + (p.mesice[i + 1] ? 'onclick="mhMesic(\'' + p.mesice[i + 1] + '\')"' : 'disabled') + '>‹</button><b>' + MESICE_CZ[+mm[1] - 1] + ' ' + mm[0] + '</b><button ' + (i > 0 ? 'onclick="mhMesic(\'' + p.mesice[i - 1] + '\')"' : 'disabled') + '>›</button></div>' +
       '<div class="souc"><div><b>' + cisloCz(p.soucet.hodiny) + ' h</b><small>odhlídáno</small></div><div><b>' + p.soucet.pocet + '</b><small>hlídání</small></div><div><b>' + kc(p.soucet.odmena) + '</b><small>odměna</small></div></div>' +
       '<div class="karta">' + (p.zaznamy.length ? p.zaznamy.map(function (z) {
-        var st = (z.stitky || []).map(function (t) { return '<span class="stit ' + (/^(víkend|svátek)$/.test(t) ? 'v' : t === 'SOS' ? 's' : t === 'akce' ? 'a' : '') + '">' + esc(t) + '</span>'; }).join('');
+        var st = (z.stitky || []).map(function (t) { return '<span class="stit ' + (/^(víkend|svátek)$/.test(t) ? 'v' : t === 'SOS' ? 's' : t === 'akce' ? 'a' : '') + '">' + esc(t.replace(/ ověřit$/, ' · ověřuje Zuzka')) + '</span>'; }).join('');
         return '<div class="zaz"><div class="zd">' + esc(z.datum) + '<small>' + esc(z.den) + '</small></div><div class="zr">' + esc(z.rodina === 'Akce' ? '🎉 Akce' : (z.rodina || '⚠️ rodina k doplnění')) + (z.pozn ? '<small>' + esc(z.pozn) + '</small>' : '') + (st ? '<div>' + st + '</div>' : '') + '</div>' +
           '<div class="zh">' + cisloCz(z.hodiny) + ' h<small>' + (z.doplni ? 'doplní Zuzka' : kc(z.odmena)) + (z.deti > 1 ? ' · ' + z.deti + ' děti' : '') + '</small></div>' +
           (z.smazat ? '<button class="zx" title="Smazat" onclick="mhSmazat(\'' + esc(z.id) + '\', this)">✕</button>' : '') + '</div>';

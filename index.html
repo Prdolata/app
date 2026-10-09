@@ -102,6 +102,39 @@
   .pf-cta a { display: inline-block; background: #F97338; color: #fff; text-decoration: none; font-weight: 800; padding: 12px 18px; border-radius: 12px; margin: 4px; }
   .pf-cta a.sec { background: rgba(255,255,255,.12); }
   .pf-nahled { background: #fff3c4; border-radius: 10px; padding: 8px 12px; font-size: 13px; text-align: center; margin-bottom: 10px; }
+  /* moje hlídání */
+  .mh { font-family: "Nunito Sans", -apple-system, "Segoe UI", Arial, sans-serif; color: #213472; }
+  .mh h1 { color: #213472; font-size: 24px; margin: 4px 0 2px; }
+  .mh .pod { color: #8a93b5; margin-bottom: 14px; }
+  .mh .karta { background: #fff; border-radius: 18px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(33,52,114,.07); }
+  .mh label.t { display: block; font-weight: 800; font-size: 13px; color: #8a93b5; text-transform: uppercase; letter-spacing: .06em; margin: 14px 0 6px; }
+  .mh label.t:first-child { margin-top: 0; }
+  .mh input[type=date], .mh input[type=text], .mh select, .mh textarea { width: 100%; font: inherit; font-size: 17px; padding: 12px; border: 1.5px solid #e6dccf; border-radius: 12px; background: #fff; color: #213472; -webkit-appearance: none; appearance: none; }
+  .mh textarea { min-height: 60px; font-size: 15px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chips button { font: inherit; font-weight: 800; font-size: 15px; border: 1.5px solid #e6dccf; background: #fff; color: #213472; border-radius: 999px; padding: 9px 14px; cursor: pointer; }
+  .chips button.on { background: #213472; color: #fff; border-color: #213472; }
+  .chips button.jina { border-style: dashed; color: #8a93b5; }
+  .krok { display: flex; align-items: center; gap: 10px; }
+  .krok button { width: 46px; height: 46px; border-radius: 12px; border: 0; background: #FFF1E7; color: #b4501f; font-size: 24px; font-weight: 800; cursor: pointer; }
+  .krok b { font-size: 26px; min-width: 70px; text-align: center; }
+  .odmena { margin-top: 14px; padding: 10px 12px; background: #FFF5ED; border-radius: 12px; font-weight: 700; display: flex; justify-content: space-between; }
+  .ulozit { width: 100%; border: 0; border-radius: 14px; padding: 16px; font: inherit; font-size: 18px; font-weight: 800; background: #F97338; color: #fff; margin-top: 14px; cursor: pointer; }
+  .ulozit:disabled { opacity: .5; }
+  .mh .zpr { margin-top: 10px; font-weight: 700; }
+  .mesic { display: flex; align-items: center; justify-content: space-between; margin: 18px 0 10px; }
+  .mesic button { border: 0; background: #fff; border-radius: 12px; width: 44px; height: 40px; font-size: 20px; color: #213472; cursor: pointer; box-shadow: 0 1px 3px rgba(33,52,114,.07); }
+  .mesic button:disabled { opacity: .3; }
+  .mesic b { font-size: 19px; text-transform: capitalize; }
+  .souc { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+  .souc div { background: #fff; border-radius: 14px; padding: 10px 6px; text-align: center; }
+  .souc b { display: block; font-size: 19px; } .souc small { color: #8a93b5; font-weight: 700; font-size: 12px; }
+  .zaz { display: flex; gap: 10px; align-items: center; padding: 11px 0; border-bottom: 1px solid #f1e8de; }
+  .zaz:last-child { border-bottom: 0; }
+  .zaz .zd { width: 54px; flex: 0 0 54px; font-weight: 800; } .zaz .zd small { display: block; color: #8a93b5; font-weight: 700; }
+  .zaz .zr { flex: 1; min-width: 0; } .zaz .zr small { display: block; color: #8a93b5; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .zaz .zh { font-weight: 800; text-align: right; white-space: nowrap; } .zaz .zh small { display: block; color: #8a93b5; font-weight: 700; }
+  .zaz .zx { border: 0; background: #f6f1ec; color: #8a93b5; width: 34px; height: 34px; border-radius: 10px; font-size: 15px; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -142,9 +175,82 @@
     if (v.druh === 'podklady') { document.title = 'Prďolata – podklady'; kresliPodklady(); }
     else if (v.druh === 'sos') { document.title = 'Prďolata – hlídání'; kresliSos(); }
     else if (v.druh === 'smlouva') { document.title = 'Prďolata – smlouva o hlídání'; kresliSmlouvu(); }
+    else if (v.druh === 'hlidani') { document.title = 'Moje hlídání – Prďolata'; kresliHlidani(); }
     else if (v.druh === 'profil') { document.title = S.jmeno + ' – chůva Prďolata'; kresliProfil(); }
   }
 
+
+
+  /* ═══════════ MOJE HLÍDÁNÍ (zápis hodin chůvy) ═══════════ */
+  var MH = { hodiny: 3, deti: 1, rodina: '', jina: false, rucne: false };
+  var MESICE_CZ = ['leden', 'únor', 'březen', 'duben', 'květen', 'červen', 'červenec', 'srpen', 'září', 'říjen', 'listopad', 'prosinec'];
+  function cisloCz(n) { return String(Math.round(n * 10) / 10).replace('.', ','); }
+  function kc(n) { return Math.round(n).toLocaleString('cs-CZ') + ' Kč'; }
+  function kresliHlidani() {
+    document.body.style.background = '#FFF5ED';
+    var p = S, i = p.mesice.indexOf(p.mesic);
+    if (!MH.rodina && p.rodiny.length === 1) MH.rodina = p.rodiny[0];
+    var mm = p.mesic.split('-');
+    $('app').innerHTML = '<div class="mh"><h1>Ahoj ' + esc(p.jmeno) + ' 👋</h1><div class="pod">Moje hlídání – zapiš každé hlídání, odměna se spočítá sama.</div>' +
+      '<div class="karta">' +
+        '<label class="t" for="mh-datum">Kdy</label><input type="date" id="mh-datum" value="' + esc(MH.datum || p.dnes) + '" max="' + esc(p.dnes) + '">' +
+        '<label class="t">Kolik hodin</label><div class="krok"><button type="button" onclick="mhHod(-0.5)">−</button><b id="mh-hod">' + cisloCz(MH.hodiny) + ' h</b><button type="button" onclick="mhHod(0.5)">+</button></div>' +
+        '<label class="t">Kolik dětí</label><div class="chips" id="mh-deti">' + [1, 2, 3, 4].map(function (n) { return '<button type="button" class="' + (MH.deti === n ? 'on' : '') + '" onclick="MH.deti=' + n + ';mhPrekresli()">' + n + '</button>'; }).join('') + '</div>' +
+        '<label class="t">Rodina</label><div class="chips" id="mh-rod">' + p.rodiny.map(function (r) { return '<button type="button" class="' + (MH.rodina === r && !MH.rucne ? 'on' : '') + '" data-r="' + esc(r) + '" onclick="MH.rodina=this.dataset.r;MH.jina=false;MH.rucne=false;mhPrekresli()">' + esc(r) + '</button>'; }).join('') +
+          (MH.jina && MH.rodina && p.rodiny.indexOf(MH.rodina) < 0 ? '<button type="button" class="on">' + esc(MH.rodina) + '</button>' : '') +
+          '<button type="button" class="jina" onclick="MH.jina=true;MH.rucne=false;mhPrekresli();setTimeout(function(){var e=$(\'mh-q\');if(e)e.focus()},50)">Jiná rodina…</button></div>' +
+        (MH.jina && !MH.rucne ? '<div style="margin-top:8px"><input type="text" id="mh-q" placeholder="Napiš aspoň 3 písmena příjmení…" oninput="mhHledej(this.value)" autocomplete="off"><div class="chips" id="mh-vysl" style="margin-top:8px"></div>' +
+          '<button type="button" class="link" onclick="MH.rucne=true;MH.rodina=\'\';mhPrekresli()">Rodinu nemůžu najít – napíšu ji ručně</button></div>' : '') +
+        (MH.rucne ? '<div style="margin-top:8px"><input type="text" id="mh-rucne" placeholder="Jméno rodiny" value="' + esc(MH.rucneText || '') + '" oninput="MH.rucneText=this.value" autocomplete="off"><div class="hint">Zuzka ji pak k zápisu přiřadí.</div></div>' : '') +
+        '<label class="t" for="mh-pozn">Poznámka <span style="text-transform:none;font-weight:600">(nepovinné)</span></label><textarea id="mh-pozn" placeholder="např. vyzvedávala jsem ze školky">' + esc(MH.pozn || '') + '</textarea>' +
+        '<div class="odmena"><span>Odměna</span><span id="mh-odm">' + kc(MH.hodiny * (p.sazba + Math.max(0, MH.deti - 1) * p.priplatek)) + '</span></div>' +
+        '<button class="ulozit" id="mh-btn" onclick="mhUlozit()">Uložit hlídání</button><div class="zpr" id="mh-zpr"></div>' +
+      '</div>' +
+      '<div class="mesic"><button ' + (p.mesice[i + 1] ? 'onclick="mhMesic(\'' + p.mesice[i + 1] + '\')"' : 'disabled') + '>‹</button><b>' + MESICE_CZ[+mm[1] - 1] + ' ' + mm[0] + '</b><button ' + (i > 0 ? 'onclick="mhMesic(\'' + p.mesice[i - 1] + '\')"' : 'disabled') + '>›</button></div>' +
+      '<div class="souc"><div><b>' + cisloCz(p.soucet.hodiny) + ' h</b><small>odhlídáno</small></div><div><b>' + p.soucet.pocet + '</b><small>hlídání</small></div><div><b>' + kc(p.soucet.odmena) + '</b><small>odměna</small></div></div>' +
+      '<div class="karta">' + (p.zaznamy.length ? p.zaznamy.map(function (z) {
+        return '<div class="zaz"><div class="zd">' + esc(z.datum) + '<small>' + esc(z.den) + '</small></div><div class="zr">' + esc(z.rodina || '⚠️ rodina k doplnění') + (z.pozn ? '<small>' + esc(z.pozn) + '</small>' : '') + '</div>' +
+          '<div class="zh">' + cisloCz(z.hodiny) + ' h<small>' + kc(z.odmena) + (z.deti > 1 ? ' · ' + z.deti + ' děti' : '') + '</small></div>' +
+          (z.smazat ? '<button class="zx" title="Smazat" onclick="mhSmazat(\'' + esc(z.id) + '\', this)">✕</button>' : '') + '</div>';
+      }).join('') : '<div class="hint" style="text-align:center;padding:10px 0">V tomhle měsíci zatím nic.</div>') + '</div>' +
+      '<div class="hint" style="text-align:center">Sazba ' + p.sazba + ' Kč/h, za každé další dítě +' + p.priplatek + ' Kč/h.</div></div>';
+  }
+  function mhUlozStav() { var d = $('mh-datum'); if (d) MH.datum = d.value; var po = $('mh-pozn'); if (po) MH.pozn = po.value; }
+  function mhPrekresli() { mhUlozStav(); var y = window.scrollY; kresliHlidani(); window.scrollTo(0, y); }
+  function mhHod(k) { MH.hodiny = Math.min(16, Math.max(0.5, MH.hodiny + k)); mhPrekresli(); }
+  var mhT = null;
+  function mhHledej(q) {
+    clearTimeout(mhT);
+    if (String(q).trim().length < 3) { $('mh-vysl').innerHTML = ''; return; }
+    mhT = setTimeout(function () {
+      api('mhHledat', { q: q }).then(function (v) {
+        var el = $('mh-vysl'); if (!el) return;
+        el.innerHTML = v.data.length ? v.data.map(function (r) { return '<button type="button" data-r="' + esc(r) + '" onclick="MH.rodina=this.dataset.r;MH.rucne=false;mhPrekresli()">' + esc(r) + '</button>'; }).join('') : '<span class="hint">Nic jsem nenašla.</span>';
+      }).catch(function () { });
+    }, 300);
+  }
+  function mhUlozit() {
+    mhUlozStav();
+    if (!MH.datum) { $('mh-zpr').innerHTML = '<span class="chyba">Vyber datum.</span>'; return; }
+    if (!MH.rodina && !(MH.rucne && String(MH.rucneText || '').trim())) { $('mh-zpr').innerHTML = '<span class="chyba">Vyber rodinu.</span>'; return; }
+    $('mh-btn').disabled = true; $('mh-btn').textContent = 'Ukládám…';
+    api('mhZapsat', { datum: MH.datum, hodiny: MH.hodiny, deti: MH.deti, rodina: MH.rucne ? '' : MH.rodina, rucne: MH.rucne ? MH.rucneText : '', pozn: MH.pozn || '' })
+      .then(function (v) {
+        S = v.data; MH.pozn = ''; MH.jina = false; MH.rucne = false; MH.rucneText = ''; MH.datum = S.dnes;
+        if (S.rodiny.indexOf(MH.rodina) < 0) MH.rodina = S.rodiny.length === 1 ? S.rodiny[0] : '';
+        kresliHlidani(); $('mh-zpr').innerHTML = '<span class="ok">✓ Uloženo, díky!</span>';
+      })
+      .catch(function (e) { $('mh-btn').disabled = false; $('mh-btn').textContent = 'Uložit hlídání'; $('mh-zpr').innerHTML = '<span class="chyba">' + esc(e.message) + '</span>'; });
+  }
+  function mhSmazat(id, btn) {
+    if (!confirm('Smazat tenhle záznam?')) return;
+    mhUlozStav(); btn.disabled = true;
+    api('mhSmazat', { id: id }).then(function (v) { S = v.data; kresliHlidani(); }).catch(function (e) { btn.disabled = false; alert(e.message); });
+  }
+  function mhMesic(m) {
+    mhUlozStav();
+    api('mhMesic', { mesic: m }).then(function (v) { S = v.data; kresliHlidani(); }).catch(function (e) { alert(e.message); });
+  }
 
   /* ═══════════ PŘEDSTAVENÍ CHŮVY ═══════════ */
   function kresliProfil() {

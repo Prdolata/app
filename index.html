@@ -245,6 +245,7 @@
   /** Odměna podle stejných pravidel jako na serveru. */
   function mhVypocet() {
     var p = S, P = p.p || { aj: 250, sos: 20, vikend: 20, dite: p.priplatek };
+    if (p.pp && p.pp.length && MH.datum) { for (var pi = 0; pi < p.pp.length; pi++) if (p.pp[pi].od <= MH.datum) P = p.pp[pi]; }
     if (MH.rodina === 'Akce' && !MH.rucne) return { akce: true };
     var ajH = MH.aj && p.aj ? Math.min(MH.ajH, MH.hodiny) : 0, den = mhDen(MH.datum);
     var navic = Math.max(0, MH.deti - 1) * P.dite + (den ? P.vikend : 0) + (MH.sos ? P.sos : 0);
@@ -299,7 +300,7 @@
           '<div class="zh">' + cisloCz(z.hodiny) + ' h<small>' + (z.doplni ? 'doplní Zuzka' : kc(z.odmena)) + (z.deti > 1 ? ' · ' + z.deti + ' děti' : '') + '</small></div>' +
           (z.ceka ? '<span class="zx" style="display:grid;place-items:center" title="Ukládám">⏳</span>' : z.smazat ? '<button class="zx" title="Smazat" onclick="mhSmazat(\'' + esc(z.id) + '\', this)">✕</button>' : '') + '</div>';
       }).join('') : '<div class="hint" style="text-align:center;padding:10px 0">V tomhle měsíci zatím nic.</div>') + '</div>' +
-      '<div class="hint" style="text-align:center">Sazba ' + p.sazba + ' Kč/h' + (p.aj && p.p ? ', v angličtině ' + p.p.aj + ' Kč/h' : '') + '. Navíc za každé další dítě +' + p.priplatek + ' Kč/h' +
+      '<div class="hint" style="text-align:center">Sazba ' + p.sazba + ' Kč/h' + (p.aj && p.p ? ', v angličtině ' + p.p.aj + ' Kč/h' : '') + '. Navíc za každé další dítě +' + (p.p ? p.p.dite : p.priplatek) + ' Kč/h' +
         (p.p ? ', víkend nebo svátek +' + p.p.vikend + ' Kč/h, SOS +' + p.p.sos + ' Kč/h' : '') + '.</div></div>';
   }
   function mhUlozStav() { var d = $('mh-datum'); if (d) MH.datum = d.value; var po = $('mh-pozn'); if (po) MH.pozn = po.value; }

@@ -10,6 +10,14 @@
 <meta property="og:image" content="https://static.wixstatic.com/media/18df3e_12a067f0b848455fbe81b8937a91bde1~mv2.png">
 <meta property="og:url" content="https://app.prdolata.cz/pilates/">
 <meta name="theme-color" content="#FFF5ED">
+<link rel="preconnect" href="https://script.google.com">
+<link rel="preconnect" href="https://script.googleusercontent.com">
+<script>
+  /* Volná místa se začnou načítat hned, ještě než se stáhne zbytek stránky. */
+  window.INFO_P = fetch('https://script.google.com/macros/s/AKfycbwMHg_-QUjsM0_TM1Ep-3Z4IJQWNS5K6oinN4xEhXnQwof_Cf4ZdQ7zpaK2hzrNPyUYGg/exec',
+    { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: '{"akce":"udalostInfo"}', redirect: 'follow' })
+    .then(function (r) { return r.json(); }).then(function (o) { return o && o.ok ? o.vysledek.data : null; }).catch(function () { return null; });
+</script>
 <link rel="icon" href="../favicon.png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -230,7 +238,12 @@
   }
   function scrollTo0() { var s = $('rezervace'); if (s) s.scrollIntoView({ behavior: 'smooth' }); }
 
-  api('udalostInfo').then(function (i) { INFO = i; ukazMista(); }, function () { });
+  /* Poslední známý stav z minulé návštěvy hned, čerstvý ze serveru jakmile dorazí. */
+  try { var ulozeno = JSON.parse(localStorage.getItem('pilates_info') || 'null'); if (ulozeno && Date.now() - ulozeno.t < 6 * 3600000) { INFO = ulozeno.i; ukazMista(); } } catch (e) { }
+  (window.INFO_P || Promise.resolve(null)).then(function (i) { return i || api('udalostInfo'); }).then(function (i) {
+    INFO = i; ukazMista();
+    try { localStorage.setItem('pilates_info', JSON.stringify({ i: i, t: Date.now() })); } catch (e) { }
+  }, function () { });
 </script>
 </body>
 </html>

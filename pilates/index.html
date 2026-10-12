@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chvilka pro vás · Prďolata</title>
+<meta name="description" content="Dopoledne s pilates pro maminky a 3 hodinami hlídání s chůvami Prďolat. Út 3. 11. 2026, MessyPlay Karlín. Vyzkoušejte si hlídání nanečisto.">
+<meta property="og:title" content="Chvilka pro vás. O děti se postaráme my.">
+<meta property="og:description" content="Pilates pro maminky a 3 hodiny hlídání s chůvami Prďolat. Út 3. 11., MessyPlay Karlín. Jen 17 míst.">
+<meta property="og:image" content="https://static.wixstatic.com/media/18df3e_12a067f0b848455fbe81b8937a91bde1~mv2.png">
+<meta property="og:url" content="https://app.prdolata.cz/pilates/">
+<meta name="theme-color" content="#FFF5ED">
+<link rel="icon" href="../favicon.png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@500;600&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700;6..12,800&display=swap">
+<style>
+  :root { --navy: #213472; --cream: #FFF5ED; --peach: #FFE3D3; --orange: #F97338; --muted: #5b6b85; --line: #ecdccf; --ok: #1f6b3a; --err: #b00020; }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--cream); color: var(--navy); font-family: "Nunito Sans", -apple-system, "Segoe UI", Arial, sans-serif; font-size: 16px; line-height: 1.5; }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 14px 16px 48px; }
+  header { text-align: center; padding: 4px 0 6px; }
+  header img { height: 52px; }
+  h1, h2, .puff { font-family: "DynaPuff", "Nunito Sans", sans-serif; font-weight: 600; letter-spacing: .2px; }
+  h1 { font-size: 31px; line-height: 1.12; margin: 14px 0 12px; text-align: center; }
+  h1 span { color: var(--orange); display: block; }
+  h2 { font-size: 21px; margin: 30px 0 12px; }
+  .lead { text-align: center; font-size: 17px; margin: 0 auto 18px; max-width: 30em; }
+  .fakta { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 0 0 18px; }
+  .fakta span { background: #fff; border-radius: 999px; padding: 7px 13px; font-weight: 700; font-size: 14px; box-shadow: 0 1px 2px rgba(33,52,114,.08); }
+  .cta { display: block; width: 100%; border: 0; border-radius: 14px; background: var(--orange); color: #fff; font: 800 18px "Nunito Sans", sans-serif; padding: 16px; text-align: center; text-decoration: none; cursor: pointer; box-shadow: 0 4px 0 #d85a22; }
+  .cta:active { transform: translateY(2px); box-shadow: 0 2px 0 #d85a22; }
+  .cta:disabled { opacity: .55; }
+  .mista { text-align: center; font-weight: 700; margin: 10px 0 0; font-size: 15px; min-height: 22px; }
+  .mista b { color: var(--orange); }
+  .bloky { display: grid; gap: 10px; }
+  .blok { background: #fff; border-radius: 16px; padding: 14px 16px; display: flex; gap: 14px; align-items: flex-start; }
+  .blok .ic { flex: 0 0 44px; height: 44px; border-radius: 12px; background: var(--peach); display: grid; place-items: center; font-size: 22px; }
+  .blok b { display: block; font-size: 17px; }
+  .blok small { color: var(--muted); font-size: 14px; }
+  .bonus { margin: 12px 0 0; border: 2px dashed var(--orange); border-radius: 16px; padding: 13px 16px; background: #fff; display: flex; gap: 12px; align-items: center; }
+  .bonus .cena { font-family: "DynaPuff", sans-serif; font-size: 22px; color: var(--orange); white-space: nowrap; }
+  .bonus small { color: var(--muted); display: block; font-size: 13px; }
+  .text p { margin: 0 0 10px; }
+  .faq details { background: #fff; border-radius: 14px; margin-bottom: 8px; padding: 0 16px; }
+  .faq summary { cursor: pointer; font-weight: 700; padding: 13px 0; list-style: none; position: relative; padding-right: 26px; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; position: absolute; right: 0; top: 10px; font-size: 22px; color: var(--orange); }
+  .faq details[open] summary::after { content: "–"; }
+  .faq details p { margin: 0 0 14px; color: #34437a; }
+  form, .vysledek { background: #fff; border-radius: 18px; padding: 18px 16px; }
+  label { display: block; font-weight: 700; font-size: 15px; margin: 14px 0 6px; }
+  label:first-child { margin-top: 0; }
+  label small { font-weight: 400; color: var(--muted); }
+  input[type=text], input[type=email], input[type=tel] { width: 100%; font: 16px "Nunito Sans", sans-serif; color: var(--navy); padding: 12px 13px; border: 1.5px solid var(--line); border-radius: 11px; background: #fffdfb; }
+  input:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 0 3px var(--peach); }
+  .dva { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .dva label { margin-top: 0; }
+  .volby { display: flex; gap: 8px; flex-wrap: wrap; }
+  .volby label { margin: 0; font-weight: 600; }
+  .volby input { position: absolute; opacity: 0; pointer-events: none; }
+  .volby span { display: inline-block; padding: 10px 15px; border: 1.5px solid var(--line); border-radius: 999px; cursor: pointer; background: #fffdfb; }
+  .volby input:checked + span { background: var(--navy); border-color: var(--navy); color: #fff; }
+  .volby input:focus-visible + span { box-shadow: 0 0 0 3px var(--peach); }
+  .souhlas { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; font-size: 14px; margin-top: 14px; }
+  .souhlas input { width: 20px; height: 20px; flex: 0 0 20px; margin: 1px 0 0; accent-color: var(--orange); }
+  .past { position: absolute; left: -9999px; height: 0; overflow: hidden; }
+  .chyba { color: var(--err); font-weight: 700; margin: 12px 0 0; min-height: 0; }
+  .shrnuti { background: var(--cream); border-radius: 12px; padding: 11px 14px; margin: 16px 0 14px; font-size: 15px; }
+  .shrnuti b { font-size: 17px; }
+  .vysledek h2 { margin-top: 0; }
+  .plat { display: grid; grid-template-columns: auto 1fr auto; gap: 8px 12px; align-items: center; margin: 14px 0; }
+  .plat dt { color: var(--muted); font-size: 14px; }
+  .plat dd { margin: 0; font-weight: 800; font-size: 18px; }
+  .kop { border: 1.5px solid var(--line); background: #fff; color: var(--navy); border-radius: 9px; font: 700 13px "Nunito Sans", sans-serif; padding: 6px 10px; cursor: pointer; }
+  .qr { text-align: center; margin: 8px 0 6px; }
+  .qr canvas, .qr img { width: 200px; height: 200px; image-rendering: pixelated; }
+  .qr small { display: block; color: var(--muted); font-size: 13px; }
+  .drzime { background: #fff3c4; border-radius: 12px; padding: 11px 14px; font-size: 15px; }
+  .ok { background: #d9f0d9; border-radius: 12px; padding: 12px 14px; }
+  .pozn { color: var(--muted); font-size: 13px; margin: 12px 0 0; }
+  footer { text-align: center; font-size: 13px; color: var(--muted); margin-top: 30px; }
+  footer a { color: var(--muted); }
+  @media (min-width: 520px) { h1 { font-size: 36px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><a href="https://www.prdolata.cz"><img src="../logo.png" alt="Prďolata – hlídání dětí"></a></header>
+
+  <h1>Chvilka pro vás. <span>O děti se postaráme&nbsp;my.</span></h1>
+  <p class="lead">Vyzkoušejte si hlídání s Prďolaty nanečisto. Poznejte naše chůvy osobně a dopřejte si dopoledne, kdy se o vaše děti postaráme my.</p>
+  <div class="fakta"><span>Út 3. 11. · 9:00–12:00</span><span>MessyPlay Karlín</span><span>590 Kč · děti v ceně</span></div>
+  <a class="cta" href="#rezervace">Rezervovat místo</a>
+  <p class="mista" id="mista"></p>
+
+  <h2>Co vás čeká</h2>
+  <div class="bloky">
+    <div class="blok"><div class="ic">🧸</div><div><b>3 hodiny hlídání</b><small>s chůvami Prďolat, 9:00–12:00</small></div></div>
+    <div class="blok"><div class="ic">🧘‍♀️</div><div><b>60 minut pilates</b><small>s lektorkou, 10:00–11:00</small></div></div>
+    <div class="blok"><div class="ic">🎨</div><div><b>Program pro děti</b><small>senzorické a výtvarné hraní v MessyPlay</small></div></div>
+  </div>
+  <div class="bonus"><div class="cena">+ 300 Kč</div><div><b>na vaše první hlídání s Prďolaty</b><small>Poukaz dostanete po akci, platí 30 dní.</small></div></div>
+
+  <h2>Poznejte nás dřív, než nás pozvete domů</h2>
+  <div class="text">
+    <p>Prďolata hlídají děti u rodin doma po celé Praze. Víme ale, že svěřit dítě někomu novému chce důvěru.</p>
+    <p>Proto jsme připravili tohle dopoledne. Poznáte naše chůvy osobně a uvidíte, jak se o vaše dítě starají. A celou dobu je máte nablízku.</p>
+  </div>
+
+  <h2>Časté otázky</h2>
+  <div class="faq">
+    <details><summary>Od jakého věku může dítě přijít?</summary><p>Od 6 měsíců.</p></details>
+    <details><summary>Co když mám víc dětí?</summary><p>Platíte jen jednou, 590 Kč za sebe – děti jsou v ceně. Míst pro sourozence je omezený počet, ve formuláři jen vyberte počet dětí.</p></details>
+    <details><summary>Kde budu já, zatímco chůvy hlídají?</summary><p>Ve stejné budově jako děti. Od 10:00 do 11:00 máte pilates s lektorkou, zbytek dopoledne je jen pro vás. Když dítě nebude chtít zůstat, jste hned vedle.</p></details>
+    <details><summary>Jak se platí?</summary><p>Po odeslání přihlášky uvidíte platební údaje a QR kód pro bankovní aplikaci. Stejné údaje vám přijdou e-mailem. Místo vám držíme 48 hodin, rezervace platí po připsání platby.</p></details>
+    <details><summary>Co když nemůžu přijít?</summary><p id="storno">Napište nám do 27. 10. a vrátíme celou částku. Později (třeba když dítě onemocní) vám ji převedeme na kredit na hlídání.</p></details>
+    <details><summary>Co si mám přinést?</summary><p>Nic nemusíte. Na pilates se hodí pohodlné oblečení, dětem doporučujeme náhradní oblečení.</p></details>
+  </div>
+
+  <h2 id="rezervace">Rezervace</h2>
+  <div id="sekce">
+    <form id="f" novalidate>
+      <div class="dva">
+        <label>Jméno<input type="text" name="jmeno" autocomplete="given-name" required></label>
+        <label>Příjmení<input type="text" name="prijmeni" autocomplete="family-name" required></label>
+      </div>
+      <label>E-mail<input type="email" name="email" autocomplete="email" inputmode="email" required></label>
+      <label>Telefon<input type="tel" name="telefon" autocomplete="tel" inputmode="tel" required></label>
+      <label>Kolik dětí vezmete?</label>
+      <div class="volby" id="deti">
+        <label><input type="radio" name="deti" value="1" checked><span>1 dítě</span></label>
+        <label><input type="radio" name="deti" value="2"><span>2 děti</span></label>
+        <label><input type="radio" name="deti" value="3"><span>3 děti</span></label>
+      </div>
+      <label>Věk dítěte <small id="vekPopis">(např. 2 roky)</small><input type="text" name="vek" required></label>
+      <label>Ve které části Prahy bydlíte? <small>(nepovinné)</small><input type="text" name="ctvrt" autocomplete="address-level2"></label>
+      <label>Hlídání už využíváte? <small>(nepovinné)</small></label>
+      <div class="volby">
+        <label><input type="radio" name="hlidani" value="pravidelně"><span>Pravidelně</span></label>
+        <label><input type="radio" name="hlidani" value="občas"><span>Občas</span></label>
+        <label><input type="radio" name="hlidani" value="zatím ne"><span>Zatím ne</span></label>
+      </div>
+      <div class="past" aria-hidden="true"><label>Web<input type="text" name="web" tabindex="-1" autocomplete="off"></label></div>
+      <label class="souhlas"><input type="checkbox" name="souhlas"><span>Souhlasím s podmínkami akce (storno výše) a se zpracováním údajů kvůli registraci.</span></label>
+      <label class="souhlas"><input type="checkbox" name="novinky"><span>Chci dostávat novinky a nabídky Prďolat, třeba poukaz na první hlídání. <small>(nepovinné)</small></span></label>
+      <div class="shrnuti">K platbě: <b>590 Kč</b> · děti v ceně</div>
+      <button class="cta" type="submit" id="odeslat">Rezervovat místo</button>
+      <p class="chyba" id="chyba" role="alert"></p>
+    </form>
+  </div>
+
+  <footer>Prďolata.cz · hlídání dětí · <a href="mailto:hlidani@prdolata.cz">hlidani@prdolata.cz</a><br>Místo konání: MessyPlay Karlín, Sokolovská 725/111, Praha 8</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+  /* Stejná implementace jako app.prdolata.cz („Stránka pro chůvy“). */
+  var API = 'https://script.google.com/macros/s/AKfycbwMHg_-QUjsM0_TM1Ep-3Z4IJQWNS5K6oinN4xEhXnQwof_Cf4ZdQ7zpaK2hzrNPyUYGg/exec';
+  var $ = function (id) { return document.getElementById(id); };
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  var INFO = null;
+
+  function api(akce, data, pokus) {
+    pokus = pokus || 0;
+    return fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ akce: akce }, data || {})), redirect: 'follow' })
+      .then(function (r) { return r.json(); }, function () {
+        if (pokus >= 2) throw new Error('Nepodařilo se spojit se serverem. Zkontrolujte internet a zkuste to prosím znovu.');
+        return new Promise(function (ok) { setTimeout(ok, 1200 * (pokus + 1)); }).then(function () { return api(akce, data, pokus + 1); }).then(function (v) { return { ok: true, vysledek: { data: v } }; });
+      })
+      .then(function (o) { if (!o.ok) throw new Error(o.chyba || 'Něco se pokazilo.'); return o.vysledek.data; });
+  }
+
+  function slovoMist(n) { return n === 1 ? 'místo' : n >= 2 && n <= 4 ? 'místa' : 'míst'; }
+  function ukazMista() {
+    if (!INFO) return;
+    var m = $('mista');
+    if (INFO.uzavreno) { m.innerHTML = 'Registrace je uzavřená.'; zavrit('Registrace je uzavřená. Napište nám na <a href="mailto:hlidani@prdolata.cz">hlidani@prdolata.cz</a>, zkusíme pro vás místo najít.'); return; }
+    if (INFO.volno < 1) { m.innerHTML = 'Všechna místa jsou obsazená.'; zavrit('Všechna místa jsou obsazená. Napište nám na <a href="mailto:hlidani@prdolata.cz">hlidani@prdolata.cz</a> a dáme vám vědět, když se nějaké uvolní.'); return; }
+    m.innerHTML = INFO.volno <= 10 ? 'Zbývá už jen <b>' + INFO.volno + ' ' + slovoMist(INFO.volno) + '</b> z 17' : 'Kapacita je jen <b>17 míst</b>';
+    document.querySelectorAll('#deti input').forEach(function (i) { var navic = Number(i.value) - 1; i.disabled = navic > INFO.volnoDalsiDeti; i.parentNode.style.opacity = i.disabled ? .45 : 1; });
+  }
+  function zavrit(html) { $('sekce').innerHTML = '<div class="vysledek"><p style="margin:0">' + html + '</p></div>'; }
+
+  document.querySelectorAll('#deti input').forEach(function (i) {
+    i.addEventListener('change', function () { $('vekPopis').textContent = i.value === '1' ? '(např. 2 roky)' : '(věk každého, např. 8 měsíců a 3 roky)'; });
+  });
+
+  $('f').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var f = e.target, ch = $('chyba'); ch.textContent = '';
+    var d = {
+      jmeno: f.jmeno.value.trim(), prijmeni: f.prijmeni.value.trim(), email: f.email.value.trim(), telefon: f.telefon.value.trim(),
+      deti: Number((f.querySelector('input[name=deti]:checked') || {}).value || 1), vek: f.vek.value.trim(), ctvrt: f.ctvrt.value.trim(),
+      hlidani: (f.querySelector('input[name=hlidani]:checked') || {}).value || '', souhlas: f.souhlas.checked, novinky: f.novinky.checked, web: f.web.value,
+    };
+    var chybi = !d.jmeno || !d.prijmeni ? 'Vyplňte prosím jméno a příjmení.' : !/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(d.email) ? 'Zkontrolujte prosím e-mail.'
+      : d.telefon.replace(/\D/g, '').length < 9 ? 'Zkontrolujte prosím telefon.' : !d.vek ? 'Napište prosím věk dítěte.' : !d.souhlas ? 'Potvrďte prosím souhlas s podmínkami.' : '';
+    if (chybi) { ch.textContent = chybi; return; }
+    var b = $('odeslat'); b.disabled = true; b.textContent = 'Odesílám…';
+    api('udalostRegistrace', { udaje: d }).then(platba, function (er) { ch.textContent = er.message; b.disabled = false; b.textContent = 'Rezervovat místo'; });
+  });
+
+  function platba(p) {
+    if (p.zaplaceno) { zavrit('<span class="ok" style="display:block">Tuhle rezervaci už máte zaplacenou – místo je vaše! Potvrzení jsme poslali na ' + esc(p.email) + '.</span>'); scrollTo0(); return; }
+    var kop = function (t) { return '<button type="button" class="kop" data-t="' + esc(t) + '">Kopírovat</button>'; };
+    $('sekce').innerHTML = '<div class="vysledek">' +
+      '<h2>' + (p.znovu ? 'Vaši přihlášku už máme' : 'Máme vaši přihlášku 🤍') + '</h2>' +
+      '<p class="drzime">Místo vám držíme do <b>' + esc(p.drzimeDo) + '</b>. Rezervace platí, jakmile dorazí platba.</p>' +
+      '<div class="qr" id="qr"></div>' +
+      '<dl class="plat">' +
+        '<dt>Částka</dt><dd>' + esc(p.castka) + ' Kč</dd><span></span>' +
+        '<dt>Účet</dt><dd>' + esc(p.ucet) + '</dd>' + kop(p.ucet) +
+        '<dt>VS</dt><dd>' + esc(p.vs) + '</dd>' + kop(p.vs) +
+      '</dl>' +
+      '<p style="margin:0">Platební údaje jsme poslali i na <b>' + esc(p.email) + '</b>. Jakmile platbu uvidíme, přijde vám e-mail <b>„Máte své místo!“</b> s programem.</p>' +
+      '<p class="pozn">Nepřišel e-mail? Mrkněte do spamu nebo nám napište na hlidani@prdolata.cz.</p></div>';
+    try {
+      var q = qrcode(0, 'M'); q.addData(p.spd); q.make();
+      $('qr').innerHTML = q.createImgTag(6, 8) + '<small>QR Platba – naskenujte v aplikaci banky</small>';
+      $('qr').querySelector('img').alt = 'QR Platba';
+    } catch (er) { $('qr').remove(); }
+    document.querySelectorAll('.kop').forEach(function (k) {
+      k.addEventListener('click', function () {
+        var t = k.getAttribute('data-t');
+        (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function () { k.textContent = 'Zkopírováno'; }, function () { k.textContent = t; });
+      });
+    });
+    scrollTo0();
+  }
+  function scrollTo0() { var s = $('rezervace'); if (s) s.scrollIntoView({ behavior: 'smooth' }); }
+
+  api('udalostInfo').then(function (i) { INFO = i; ukazMista(); }, function () { });
+</script>
+</body>
+</html>

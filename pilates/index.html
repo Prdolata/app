@@ -23,8 +23,8 @@
   header { text-align: center; padding: 4px 0 6px; }
   header img { height: 52px; }
   h1, h2, .puff { font-family: "DynaPuff", "Nunito Sans", sans-serif; font-weight: 600; letter-spacing: .2px; }
-  h1 { font-size: 31px; line-height: 1.12; margin: 14px 0 12px; text-align: center; }
-  h1 span { color: var(--orange); display: block; }
+  h1 { font-size: 42px; line-height: 1.05; margin: 14px 0 14px; text-align: center; }
+  h1 span { color: var(--orange); display: block; font-size: .56em; margin-top: 6px; }
   h2 { font-size: 21px; margin: 30px 0 12px; }
   .lead { text-align: center; font-size: 17px; margin: 0 auto 18px; max-width: 30em; }
   .fakta { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 0 0 18px; }
@@ -82,7 +82,7 @@
   .pozn { color: var(--muted); font-size: 13px; margin: 12px 0 0; }
   footer { text-align: center; font-size: 13px; color: var(--muted); margin-top: 30px; }
   footer a { color: var(--muted); }
-  @media (min-width: 520px) { h1 { font-size: 36px; } }
+  @media (min-width: 520px) { h1 { font-size: 50px; } }
 </style>
 </head>
 <body>
@@ -102,21 +102,6 @@
     <div class="blok"><div class="ic">🎨</div><div><b>Program pro děti</b><small>senzorické a výtvarné hraní v MessyPlay</small></div></div>
   </div>
   <div class="bonus"><div class="cena">🎁</div><div><b>Welcome balíček pro maminku i dítě</b><small>od našich sponzorů – Šufan, Venira a další</small></div></div>
-
-  <h2>Poznejte nás dřív, než nás pozvete domů</h2>
-  <div class="text">
-    <p>Prďolata hlídají děti u rodin doma po celé Praze. Víme ale, že svěřit dítě někomu novému chce důvěru.</p>
-    <p>Proto jsme připravili tohle dopoledne. Poznáte naše chůvy osobně a uvidíte, jak se o vaše dítě starají. A celou dobu je máte nablízku.</p>
-  </div>
-
-  <h2>Časté otázky</h2>
-  <div class="faq">
-    <details><summary>Od jakého věku může dítě přijít?</summary><p>Od 6 měsíců.</p></details>
-    <details><summary>Co když mám víc dětí?</summary><p>Platíte jen jednou, 590 Kč za sebe – děti jsou v ceně. Míst pro sourozence je omezený počet, ve formuláři jen vyberte počet dětí.</p></details>
-    <details><summary>Kde budu já, zatímco chůvy hlídají?</summary><p>Ve stejné budově jako děti. Od 10:00 do 11:00 máte pilates s lektorkou, zbytek dopoledne je jen pro vás. Když dítě nebude chtít zůstat, jste hned vedle.</p></details>
-    <details><summary>Jak se platí?</summary><p>Po odeslání přihlášky uvidíte platební údaje a QR kód pro bankovní aplikaci. Stejné údaje vám přijdou e-mailem. Místo vám držíme 48 hodin, rezervace platí po připsání platby.</p></details>
-        <details><summary>Co si mám přinést?</summary><p>Nic nemusíte. Stačí přijít.</p></details>
-  </div>
 
   <h2 id="rezervace">Rezervace</h2>
   <div id="sekce">
@@ -150,6 +135,21 @@
     </form>
   </div>
 
+  <h2>Poznejte nás dřív, než nás pozvete domů</h2>
+  <div class="text">
+    <p>Prďolata hlídají děti u rodin doma po celé Praze. Víme ale, že svěřit dítě někomu novému chce důvěru.</p>
+    <p>Proto jsme připravili tohle dopoledne. Poznáte naše chůvy osobně a uvidíte, jak se o vaše dítě starají. A celou dobu je máte nablízku.</p>
+  </div>
+
+  <h2>Časté otázky</h2>
+  <div class="faq">
+    <details><summary>Od jakého věku může dítě přijít?</summary><p>Od 6 měsíců.</p></details>
+    <details><summary>Co když mám víc dětí?</summary><p>Platíte jen jednou, 590 Kč za sebe – děti jsou v ceně. Míst pro sourozence je omezený počet, ve formuláři jen vyberte počet dětí.</p></details>
+    <details><summary>Kde budu já, zatímco chůvy hlídají?</summary><p>Ve stejné budově jako děti. Od 10:00 do 11:00 máte pilates s lektorkou, zbytek dopoledne je jen pro vás. Když dítě nebude chtít zůstat, jste hned vedle.</p></details>
+    <details><summary>Jak se platí?</summary><p>Po odeslání přihlášky uvidíte platební údaje a QR kód pro bankovní aplikaci. Stejné údaje vám přijdou e-mailem. Místo vám držíme 48 hodin, rezervace platí po připsání platby.</p></details>
+        <details><summary>Co si mám přinést?</summary><p>Nic nemusíte. Stačí přijít.</p></details>
+  </div>
+
   <footer>Prďolata.cz · hlídání dětí · <a href="mailto:hlidani@prdolata.cz">hlidani@prdolata.cz</a><br>Místo konání: MessyPlay Karlín, Sokolovská 725/111, Praha 8</footer>
 </div>
 
@@ -177,7 +177,7 @@
     var m = $('mista');
     if (INFO.uzavreno) { m.innerHTML = 'Registrace je uzavřená.'; zavrit('Registrace je uzavřená. Napište nám na <a href="mailto:hlidani@prdolata.cz">hlidani@prdolata.cz</a>, zkusíme pro vás místo najít.'); return; }
     if (INFO.volno < 1) { m.innerHTML = 'Všechna místa jsou obsazená.'; zavrit('Všechna místa jsou obsazená. Napište nám na <a href="mailto:hlidani@prdolata.cz">hlidani@prdolata.cz</a> a dáme vám vědět, když se nějaké uvolní.'); return; }
-    m.innerHTML = INFO.volno <= 10 ? 'Zbývá už jen <b>' + INFO.volno + ' ' + slovoMist(INFO.volno) + '</b> z 17' : 'Kapacita je jen <b>17 míst</b>';
+    m.innerHTML = 'Zbývající kapacita jen <b>' + INFO.volno + ' ' + slovoMist(INFO.volno) + '</b>';
     document.querySelectorAll('#deti input').forEach(function (i) { var navic = Number(i.value) - 1; i.disabled = navic > INFO.volnoDalsiDeti; i.parentNode.style.opacity = i.disabled ? .45 : 1; });
   }
   function zavrit(html) { $('sekce').innerHTML = '<div class="vysledek"><p style="margin:0">' + html + '</p></div>'; }

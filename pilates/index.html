@@ -213,7 +213,7 @@
         '<dt>Účet</dt><dd>' + esc(p.ucet) + '</dd>' + kop(p.ucet) +
         '<dt>VS</dt><dd>' + esc(p.vs) + '</dd>' + kop(p.vs) +
       '</dl>' +
-      '<p style="margin:0">Platební údaje jsme poslali i na <b>' + esc(p.email) + '</b>. Jakmile platbu uvidíme, přijde vám e-mail <b>„Máte své místo!“</b> s programem.</p>' +
+      '<p style="margin:0">Platební údaje jsme poslali i na <b>' + esc(p.email) + '</b>. Po zaplacení vám přijde e-mail s <b>potvrzením rezervace</b> a programem.</p>' +
       '<p class="pozn">Nepřišel e-mail? Mrkněte do spamu nebo nám napište na hlidani@prdolata.cz.</p></div>';
     try {
       var q = qrcode(0, 'M'); q.addData(p.spd); q.make();

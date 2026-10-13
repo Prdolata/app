@@ -13,6 +13,8 @@
 <link rel="preconnect" href="https://script.google.com">
 <link rel="preconnect" href="https://script.googleusercontent.com">
 <script>
+  /* Volná místa: okamžitě ze souboru stav.json na tomhle webu (obnovuje se každých 5 min), hned potom čerstvě ze serveru. */
+  window.STAV_P = fetch('stav.json?t=' + Date.now()).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
   /* Volná místa se začnou načítat hned, ještě než se stáhne zbytek stránky. */
   window.INFO_P = fetch('https://script.google.com/macros/s/AKfycbwMHg_-QUjsM0_TM1Ep-3Z4IJQWNS5K6oinN4xEhXnQwof_Cf4ZdQ7zpaK2hzrNPyUYGg/exec',
     { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: '{"akce":"udalostInfo"}', redirect: 'follow' })
@@ -239,9 +241,11 @@
   function scrollTo0() { var s = $('rezervace'); if (s) s.scrollIntoView({ behavior: 'smooth' }); }
 
   /* Poslední známý stav z minulé návštěvy hned, čerstvý ze serveru jakmile dorazí. */
-  try { var ulozeno = JSON.parse(localStorage.getItem('pilates_info') || 'null'); if (ulozeno && Date.now() - ulozeno.t < 6 * 3600000) { INFO = ulozeno.i; ukazMista(); } } catch (e) { }
+  try { var ulozeno = JSON.parse(localStorage.getItem('pilates_info') || 'null'); if (ulozeno && Date.now() - ulozeno.t < 6 * 3600000) { INFO = ulozeno.i; INFO._t = ulozeno.t; ukazMista(); } } catch (e) { }
+  var ZIVE = false;
+  (window.STAV_P || Promise.resolve(null)).then(function (s) { if (s && !ZIVE && (!INFO || !INFO._t || s.t > INFO._t)) { INFO = s; ukazMista(); } });
   (window.INFO_P || Promise.resolve(null)).then(function (i) { return i || api('udalostInfo'); }).then(function (i) {
-    INFO = i; ukazMista();
+    ZIVE = true; INFO = i; ukazMista();
     try { localStorage.setItem('pilates_info', JSON.stringify({ i: i, t: Date.now() })); } catch (e) { }
   }, function () { });
 </script>

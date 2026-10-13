@@ -1,0 +1,33 @@
+# Volná místa na Pilates eventu → pilates/stav.json (stránka je ukáže okamžitě, pak je ověří u serveru).
+name: Pilates – volná místa
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: pilates-stav
+jobs:
+  stav:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Načíst stav ze serveru
+        run: |
+          curl -sSL --max-time 60 -H 'Content-Type: text/plain;charset=utf-8' -d '{"akce":"udalostInfo"}' \
+            'https://script.google.com/macros/s/AKfycbwMHg_-QUjsM0_TM1Ep-3Z4IJQWNS5K6oinN4xEhXnQwof_Cf4ZdQ7zpaK2hzrNPyUYGg/exec' > odpoved.json
+          node -e '
+            const o = JSON.parse(require("fs").readFileSync("odpoved.json", "utf8"));
+            if (!o.ok || !o.vysledek || !o.vysledek.data) { console.log("Server neodpověděl:", JSON.stringify(o).slice(0, 300)); process.exit(0); }
+            const d = o.vysledek.data, s = { volno: d.volno, volnoDalsiDeti: d.volnoDalsiDeti, uzavreno: !!d.uzavreno, cena: d.cena, maxDeti: d.maxDeti };
+            const cesta = "pilates/stav.json";
+            let stare = null; try { stare = JSON.parse(require("fs").readFileSync(cesta, "utf8")); delete stare.t; } catch (e) { }
+            if (JSON.stringify(stare) === JSON.stringify(s)) { console.log("beze změny"); process.exit(0); }
+            require("fs").writeFileSync(cesta, JSON.stringify(Object.assign(s, { t: Date.now() })) + "\n");
+            console.log("nový stav", JSON.stringify(s));'
+          rm -f odpoved.json
+      - name: Uložit
+        run: |
+          git config user.name 'prdolata-bot'; git config user.email 'hlidani@prdolata.cz'
+          git add pilates/stav.json
+          git diff --cached --quiet || (git commit -qm 'Pilates: volná místa' && git push -q)

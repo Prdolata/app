@@ -15,9 +15,9 @@ jobs:
       - name: Načíst stav ze serveru
         run: |
           curl -sSL --max-time 60 -H 'Content-Type: text/plain;charset=utf-8' -d '{"akce":"udalostInfo"}' \
-            'https://script.google.com/macros/s/AKfycbwMHg_-QUjsM0_TM1Ep-3Z4IJQWNS5K6oinN4xEhXnQwof_Cf4ZdQ7zpaK2hzrNPyUYGg/exec' > odpoved.json
+            'https://script.google.com/macros/s/AKfycbwMHg_-QUjsM0_TM1Ep-3Z4IJQWNS5K6oinN4xEhXnQwof_Cf4ZdQ7zpaK2hzrNPyUYGg/exec' > odpoved.json || echo '{}' > odpoved.json   # výpadek Googlu = zkusit příště, žádná chyba
           node -e '
-            const o = JSON.parse(require("fs").readFileSync("odpoved.json", "utf8"));
+            let o = {}; try { o = JSON.parse(require("fs").readFileSync("odpoved.json", "utf8")); } catch (e) { }
             if (!o.ok || !o.vysledek || !o.vysledek.data) { console.log("Server neodpověděl:", JSON.stringify(o).slice(0, 300)); process.exit(0); }
             const d = o.vysledek.data, s = { volno: d.volno, volnoDalsiDeti: d.volnoDalsiDeti, uzavreno: !!d.uzavreno, cena: d.cena, maxDeti: d.maxDeti };
             const cesta = "pilates/stav.json";

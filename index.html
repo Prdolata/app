@@ -96,7 +96,8 @@
   .pf-gal img:only-child { grid-column: 1 / -1; aspect-ratio: 4 / 3; }
   .pf-ref { border-left: 4px solid #F97338; padding: 2px 0 2px 14px; margin: 0 0 14px; }
   .pf-ref:last-child { margin-bottom: 0; }
-  .pf-ref p { margin: 0; font-size: 15.5px; line-height: 1.55; font-style: italic; }
+  .pf-ref small a { color: inherit; white-space: nowrap; }
+  .pf-ref p { white-space: pre-line; margin: 0; font-size: 15.5px; line-height: 1.55; font-style: italic; }
   .pf-ref small { display: block; margin-top: 6px; color: #8a93b5; font-weight: 700; font-style: normal; }
   .pf-over { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: #5b6690; line-height: 1.5; padding: 4px 6px 14px; }
   .pf-cta { background: #213472; color: #fff; border-radius: 18px; padding: 20px; text-align: center; }
@@ -413,7 +414,7 @@
       (dal ? '<div class="pf-blok"><dl class="pf-dal">' + dal + '</dl></div>' : '') +
       (f.length > 1 ? '<div class="pf-gal">' + f.slice(1).map(function (x) { return '<img src="' + x + '" alt="" loading="lazy">'; }).join('') + '</div>' : '') +
       (p.reference.length ? '<div class="pf-blok"><h2>Co o mně říkají</h2>' + p.reference.map(function (r) {
-        return '<div class="pf-ref"><p>„' + esc(r.text) + '“</p>' + (r.od ? '<small>— ' + esc(r.od) + '</small>' : '') + '</div>'; }).join('') + '</div>' : '') +
+        return '<div class="pf-ref"><p>„' + esc(r.text) + '“</p>' + (r.od || r.tel ? '<small>— ' + esc(r.od || '') + (r.tel ? (r.od ? ' · ' : '') + '<a href="tel:' + esc(String(r.tel).replace(/[^\d+]/g, '')) + '">' + esc(r.tel) + '</a>' : '') + '</small>' : '') + '</div>'; }).join('') + '</div>' : '') +
       (p.overeno ? '<div class="pf-over"><span>🛡️</span><span>' + esc(p.overeno) + '</span></div>' : '') +
       '<div class="pf-cta"><b>Líbí se vám ' + esc(p.jmeno) + '?</b><p>Napište nám a domluvíme první schůzku.</p>' +
         '<a href="mailto:' + esc(p.kontakt.email) + '?subject=' + encodeURIComponent('Chůva ' + p.jmeno) + '">✉️ Napsat Zuzce</a>' + tel + '</div>' +

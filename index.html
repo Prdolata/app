@@ -344,6 +344,8 @@
   function mhUlozit(znovu) {
     mhUlozStav();
     if (!MH.datum) { $('mh-zpr').innerHTML = '<span class="chyba">Vyber datum.</span>'; return; }
+    if (Date.now() - new Date(MH.datum + 'T12:00:00').getTime() > 119 * 86400000) { $('mh-zpr').innerHTML = '<span class="chyba">Tohle datum je moc staré – napiš prosím Zuzce.</span>'; return; }
+    if (!(MH.hodiny >= 0.5 && MH.hodiny <= 16)) { $('mh-zpr').innerHTML = '<span class="chyba">Zadej počet hodin (0,5 až 16).</span>'; return; }
     if (new Date(MH.datum + 'T12:00:00').getTime() > Date.now() + 62 * 86400000) { $('mh-zpr').innerHTML = '<span class="chyba">Hlídání můžeš zapsat nejvýš 2 měsíce dopředu – zkontroluj prosím datum.</span>'; return; }
     if (!MH.rodina && !(MH.rucne && String(MH.rucneText || '').trim())) { $('mh-zpr').innerHTML = '<span class="chyba">Vyber rodinu.</span>'; return; }
     var akce = MH.rodina === 'Akce' && !MH.rucne;

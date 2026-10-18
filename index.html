@@ -189,11 +189,16 @@
   function mhFronta() { return LS.get('mhq_' + TOKEN) || []; }
   function mhDoFronty(akce, q) { var f = mhFronta(); f.push({ akce: akce, q: q }); LS.set('mhq_' + TOKEN, f); }
   function mhZFronty(q) { LS.set('mhq_' + TOKEN, mhFronta().filter(function (x) { return x.q.cid !== q.cid || x.q.id !== q.id; })); }
+  var MH_FRONTA_CHYBY = [];
   function mhOdeslatFrontu() {
     var f = mhFronta();
     return f.reduce(function (p, x) {
       return p.then(function () {
-        return api(x.akce, Object.assign({}, x.q, { znovu: true })).then(function () { mhZFronty(x.q); }, function (e) { if (!e.sit) mhZFronty(x.q); });
+        return api(x.akce, Object.assign({}, x.q, { znovu: true })).then(function () { mhZFronty(x.q); }, function (e) {
+          if (e.sit) return;
+          mhZFronty(x.q);
+          if (x.akce === 'mhZapsat') { var dp = mhDatumPopis(x.q.datum); MH_FRONTA_CHYBY.push('Hlídání ' + dp.datum + ' (' + (x.q.rodina || x.q.rucne || '') + ', ' + cisloCz(x.q.hodiny) + ' h) se neuložilo: ' + String(e.message || '').replace(/^DUPLICITA: /, '')); }
+        });
       });
     }, Promise.resolve());
   }
@@ -220,7 +225,10 @@
       setTimeout(function () { if (!S) zobraz({ druh: 'hlidani', data: MH_PAMET }); }, 0);   // až po načtení celého skriptu
     }
     mhOdeslatFrontu().then(function () { return api('nacti', { nahled: NAHLED }); })
-      .then(function (v) { if (v.druh === 'hlidani' && S && S.zaznamy) mhPrevezmi(v.data); else zobraz(v); })
+      .then(function (v) {
+        if (v.druh === 'hlidani' && S && S.zaznamy) mhPrevezmi(v.data); else zobraz(v);
+        if (MH_FRONTA_CHYBY.length && $('mh-zpr')) $('mh-zpr').innerHTML = '<span class="chyba">' + MH_FRONTA_CHYBY.map(esc).join('<br>') + '</span>';
+      })
       .catch(function (e) { if (!(MH_PAMET && MH_PAMET.zaznamy)) chybaStranky(e.message); });
   }
 
@@ -336,6 +344,8 @@
   function mhUlozit(znovu) {
     mhUlozStav();
     if (!MH.datum) { $('mh-zpr').innerHTML = '<span class="chyba">Vyber datum.</span>'; return; }
+    var dnes0 = new Date(), dnesS = dnes0.getFullYear() + '-' + String(dnes0.getMonth() + 1).padStart(2, '0') + '-' + String(dnes0.getDate()).padStart(2, '0');
+    if (MH.datum > dnesS) { $('mh-zpr').innerHTML = '<span class="chyba">Hlídání v budoucnosti zapsat nejde – zapiš ho, až proběhne.</span>'; return; }
     if (!MH.rodina && !(MH.rucne && String(MH.rucneText || '').trim())) { $('mh-zpr').innerHTML = '<span class="chyba">Vyber rodinu.</span>'; return; }
     var akce = MH.rodina === 'Akce' && !MH.rucne;
     if (akce && !String(MH.pozn || '').trim()) { $('mh-zpr').innerHTML = '<span class="chyba">Napiš do poznámky, o jakou akci šlo.</span>'; return; }

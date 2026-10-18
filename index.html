@@ -187,16 +187,16 @@
   };
   /* Fronta zápisů: co se neodeslalo (zavřená stránka, výpadek), dopošle se při dalším otevření. Zápisy mají ID → nezdvojí se. */
   function mhFronta() { return LS.get('mhq_' + TOKEN) || []; }
-  function mhDoFronty(akce, q) { var f = mhFronta(); f.push({ akce: akce, q: q }); LS.set('mhq_' + TOKEN, f); }
+  function mhDoFronty(akce, q, tmp) { var f = mhFronta(); f.push({ akce: akce, q: q, tmp: tmp }); LS.set('mhq_' + TOKEN, f); }
   function mhZFronty(q) { LS.set('mhq_' + TOKEN, mhFronta().filter(function (x) { return x.q.cid !== q.cid || x.q.id !== q.id; })); }
   var MH_FRONTA_CHYBY = [];
   function mhOdeslatFrontu() {
     var f = mhFronta();
     return f.reduce(function (p, x) {
       return p.then(function () {
-        return api(x.akce, Object.assign({}, x.q, { znovu: true })).then(function () { mhZFronty(x.q); }, function (e) {
+        return api(x.akce, Object.assign({}, x.q, { znovu: true })).then(function () { mhZFronty(x.q); if (x.q.cid) delete MH_CEKA[x.q.cid]; }, function (e) {
           if (e.sit) return;
-          mhZFronty(x.q);
+          mhZFronty(x.q); if (x.q.cid) delete MH_CEKA[x.q.cid];
           if (x.akce === 'mhZapsat') { var dp = mhDatumPopis(x.q.datum); MH_FRONTA_CHYBY.push('Hlídání ' + dp.datum + ' (' + (x.q.rodina || x.q.rucne || '') + ', ' + cisloCz(x.q.hodiny) + ' h) se neuložilo: ' + String(e.message || '').replace(/^DUPLICITA: /, '')); }
         });
       });
@@ -222,7 +222,11 @@
     if (MH_PAMET && MH_PAMET.zaznamy) {
       var t = new Date(); MH_PAMET.dnes = t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0');
       if (MH_PAMET.mesic !== MH_PAMET.dnes.slice(0, 7)) { MH_PAMET.mesic = MH_PAMET.dnes.slice(0, 7); MH_PAMET.zaznamy = []; }
-      setTimeout(function () { if (!S) zobraz({ druh: 'hlidani', data: MH_PAMET }); }, 0);   // až po načtení celého skriptu
+      setTimeout(function () {
+        // neodeslané zápisy z minula ukázat hned (s ⏳), než je server potvrdí
+        mhFronta().forEach(function (x) { if (x.akce === 'mhZapsat' && x.tmp) { MH_CEKA[x.q.cid] = x.tmp; if (x.tmp._mesic === MH_PAMET.mesic && !MH_PAMET.zaznamy.some(function (z) { return z.id === x.tmp.id; })) MH_PAMET.zaznamy.unshift(x.tmp); } });
+        if (!S) zobraz({ druh: 'hlidani', data: MH_PAMET });
+      }, 0);   // až po načtení celého skriptu
     }
     mhOdeslatFrontu().then(function () { return api('nacti', { nahled: NAHLED }); })
       .then(function (v) {
@@ -369,7 +373,7 @@
     if (mes === S.mesic) { S.zaznamy.unshift(tmp); mhSoucet(); }
     var y = window.scrollY; kresliHlidani(); window.scrollTo(0, y);
     $('mh-zpr').innerHTML = '<span class="ok">✓ Uloženo, díky!</span>';
-    mhDoFronty('mhZapsat', q);
+    mhDoFronty('mhZapsat', q, tmp);
     api('mhZapsat', q).then(function (r) {
       mhZFronty(q);
       delete MH_CEKA[cid];

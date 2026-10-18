@@ -280,7 +280,7 @@
     var akce = MH.rodina === 'Akce' && !MH.rucne, v = mhVypocet();
     $('app').innerHTML = '<div class="mh"><h1>Ahoj ' + esc(p.jmeno) + ' 👋</h1><div class="pod">Moje hlídání – zapiš každé hlídání, odměna se spočítá sama.</div>' +
       '<div class="karta">' +
-        '<label class="t" for="mh-datum">Kdy</label><input type="date" id="mh-datum" value="' + esc(MH.datum || p.dnes) + '" max="' + esc(p.dnes) + '" onchange="mhPrekresli()">' +
+        '<label class="t" for="mh-datum">Kdy</label><input type="date" id="mh-datum" value="' + esc(MH.datum || p.dnes) + '" onchange="mhPrekresli()">' +
         '<label class="t">Kolik hodin</label><div class="krok"><button type="button" onclick="mhHod(-0.5)">−</button><b id="mh-hod">' + cisloCz(MH.hodiny) + ' h</b><button type="button" onclick="mhHod(0.5)">+</button></div>' +
         '<label class="t">Kolik dětí</label><div class="chips" id="mh-deti">' + [1, 2, 3, 4].map(function (n) { return '<button type="button" class="' + (MH.deti === n ? 'on' : '') + '" onclick="MH.deti=' + n + ';mhPrekresli()">' + n + '</button>'; }).join('') + '</div>' +
         '<label class="t">Rodina</label><div class="chips" id="mh-rod">' + p.rodiny.map(function (r) { return '<button type="button" class="' + (MH.rodina === r && !MH.rucne ? 'on' : '') + '" data-r="' + esc(r) + '" onclick="MH.rodina=this.dataset.r;MH.jina=false;MH.rucne=false;mhPrekresli()">' + esc(r) + '</button>'; }).join('') +
@@ -344,8 +344,7 @@
   function mhUlozit(znovu) {
     mhUlozStav();
     if (!MH.datum) { $('mh-zpr').innerHTML = '<span class="chyba">Vyber datum.</span>'; return; }
-    var dnes0 = new Date(), dnesS = dnes0.getFullYear() + '-' + String(dnes0.getMonth() + 1).padStart(2, '0') + '-' + String(dnes0.getDate()).padStart(2, '0');
-    if (MH.datum > dnesS) { $('mh-zpr').innerHTML = '<span class="chyba">Hlídání v budoucnosti zapsat nejde – zapiš ho, až proběhne.</span>'; return; }
+    if (new Date(MH.datum + 'T12:00:00').getTime() > Date.now() + 62 * 86400000) { $('mh-zpr').innerHTML = '<span class="chyba">Hlídání můžeš zapsat nejvýš 2 měsíce dopředu – zkontroluj prosím datum.</span>'; return; }
     if (!MH.rodina && !(MH.rucne && String(MH.rucneText || '').trim())) { $('mh-zpr').innerHTML = '<span class="chyba">Vyber rodinu.</span>'; return; }
     var akce = MH.rodina === 'Akce' && !MH.rucne;
     if (akce && !String(MH.pozn || '').trim()) { $('mh-zpr').innerHTML = '<span class="chyba">Napiš do poznámky, o jakou akci šlo.</span>'; return; }

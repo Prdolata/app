@@ -280,9 +280,11 @@
     var p = S, i = p.mesice.indexOf(p.mesic);
     if (!MH.rodina && p.rodiny.length === 1) MH.rodina = p.rodiny[0];
     var mm = p.mesic.split('-');
-    if (!MH.datum) MH.datum = p.dnes;
+    if (!MH.datum) MH.datum = p.od && p.dnes < p.od ? p.od : p.dnes;
+    var odCz = p.od ? (+p.od.slice(8, 10)) + '. ' + (+p.od.slice(5, 7)) + '.' : '';
     var akce = MH.rodina === 'Akce' && !MH.rucne, v = mhVypocet();
     $('app').innerHTML = '<div class="mh"><h1>Ahoj ' + esc(p.jmeno) + ' 👋</h1><div class="pod">Moje hlídání – zapiš každé hlídání, odměna se spočítá sama.</div>' +
+      (p.od && p.dnes < p.od ? '<div class="karta" style="background:#fff8e1">📅 Sem zapisuj hlídání od <b>' + odCz + '</b>. Hlídání před ' + odCz + ' ještě doplň do své tabulky hodin' + (p.stara ? ' – <a href="' + esc(p.stara) + '" target="_blank">otevřít tabulku</a>' : '') + '.</div>' : '') +
       '<div class="karta">' +
         '<label class="t" for="mh-datum">Kdy</label><input type="date" id="mh-datum" value="' + esc(MH.datum || p.dnes) + '" onchange="mhPrekresli()">' +
         '<label class="t">Kolik hodin</label><div class="krok"><button type="button" onclick="mhHod(-0.5)">−</button><b id="mh-hod">' + cisloCz(MH.hodiny) + ' h</b><button type="button" onclick="mhHod(0.5)">+</button></div>' +
@@ -314,7 +316,8 @@
           (z.ceka ? '<span class="zx" style="display:grid;place-items:center" title="Ukládám">⏳</span>' : z.smazat ? '<button class="zx" title="Smazat" onclick="mhSmazat(\'' + esc(z.id) + '\', this)">✕</button>' : '') + '</div>';
       }).join('') : '<div class="hint" style="text-align:center;padding:10px 0">V tomhle měsíci zatím nic.</div>') + '</div>' +
       '<div class="hint" style="text-align:center">Sazba ' + p.sazba + ' Kč/h' + (p.aj && p.p ? ', v angličtině ' + p.p.aj + ' Kč/h' : '') + '. Navíc za každé další dítě +' + (p.p ? p.p.dite : p.priplatek) + ' Kč/h' +
-        (p.p ? ', víkend nebo svátek +' + p.p.vikend + ' Kč/h, SOS +' + p.p.sos + ' Kč/h' : '') + '.</div></div>';
+        (p.p ? ', víkend nebo svátek +' + p.p.vikend + ' Kč/h, SOS +' + p.p.sos + ' Kč/h' : '') + '.</div>' +
+      (p.stara ? '<div class="hint" style="text-align:center"><a href="' + esc(p.stara) + '" target="_blank">Starší hlídání najdeš ve své původní tabulce ↗</a></div>' : '') + '</div>';
   }
   function mhUlozStav() { var d = $('mh-datum'); if (d) MH.datum = d.value; var po = $('mh-pozn'); if (po) MH.pozn = po.value; }
   function mhPrekresli() { mhUlozStav(); var y = window.scrollY; kresliHlidani(); window.scrollTo(0, y); }
@@ -349,6 +352,7 @@
     mhUlozStav();
     if (!MH.datum) { $('mh-zpr').innerHTML = '<span class="chyba">Vyber datum.</span>'; return; }
     if (Date.now() - new Date(MH.datum + 'T12:00:00').getTime() > 119 * 86400000) { $('mh-zpr').innerHTML = '<span class="chyba">Tohle datum je moc staré – napiš prosím Zuzce.</span>'; return; }
+    if (S.od && MH.datum < S.od) { var o = S.od; $('mh-zpr').innerHTML = '<span class="chyba">Hlídání před ' + (+o.slice(8, 10)) + '. ' + (+o.slice(5, 7)) + '. zapiš prosím ještě do své tabulky hodin.</span>'; return; }
     if (!(MH.hodiny >= 0.5 && MH.hodiny <= 16)) { $('mh-zpr').innerHTML = '<span class="chyba">Zadej počet hodin (0,5 až 16).</span>'; return; }
     if (new Date(MH.datum + 'T12:00:00').getTime() > Date.now() + 62 * 86400000) { $('mh-zpr').innerHTML = '<span class="chyba">Hlídání můžeš zapsat nejvýš 2 měsíce dopředu – zkontroluj prosím datum.</span>'; return; }
     if (!MH.rodina && !(MH.rucne && String(MH.rucneText || '').trim())) { $('mh-zpr').innerHTML = '<span class="chyba">Vyber rodinu.</span>'; return; }

@@ -185,13 +185,19 @@
   function ukazMista() {
     if (!INFO) return;
     var m = $('mista');
-    if (INFO.uzavreno) { m.innerHTML = 'Registrace je uzavřená.'; zajemForm('Registrace je uzavřená'); return; }
-    if (INFO.volno < 1) { m.innerHTML = 'Všechna místa jsou obsazená.'; zajemForm('Tentokrát je plno 😢'); return; }
+    if (INFO.uzavreno) { m.innerHTML = ''; zajemForm('Registrace je uzavřená'); return; }
+    if (INFO.volno < 1) { m.innerHTML = ''; zajemForm('Tentokrát je plno 😢'); return; }
     m.innerHTML = 'Zbývající kapacita jen <b>' + INFO.volno + ' ' + slovoMist(INFO.volno) + '</b>';
     document.querySelectorAll('#deti input').forEach(function (i) { var navic = Number(i.value) - 1; i.disabled = navic > INFO.volnoDalsiDeti; i.parentNode.style.opacity = i.disabled ? .45 : 1; });
   }
   /* Vyprodáno / uzavřeno → předregistrace na další event (e-mail do Kanceláře → list ZÁJEMCI – AKCE) */
   function zajemForm(nadpis) {
+    // formulář rovnou nahoru místo tlačítka „Rezervovat místo“, ať lidi nemusí sjíždět
+    var cta = document.querySelector('a.cta[href="#rezervace"]'), sek = $('sekce'), h = $('rezervace');
+    if (cta) cta.style.display = 'none';
+    if (h) h.style.display = 'none';
+    if (sek && $('mista') && sek.previousElementSibling !== $('mista')) $('mista').insertAdjacentElement('afterend', sek);
+    if ($('fz')) return;                           // už je vykreslený (např. přišla čerstvá data) – nemazat rozepsané
     $('sekce').innerHTML = '<div class="vysledek"><h2 style="margin-top:0">' + esc(nadpis) + '</h2>' +
       '<p>Další pilates event pro maminky s dětmi plánujeme na <b>prosinec</b>. Nechte nám e-mail a pozvánku vám pošleme jako jedné z prvních – ještě než ho zveřejníme.</p>' +
       '<form id="fz" novalidate style="padding:0">' +

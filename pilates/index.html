@@ -185,10 +185,33 @@
   function ukazMista() {
     if (!INFO) return;
     var m = $('mista');
-    if (INFO.uzavreno) { m.innerHTML = 'Registrace je uzavřená.'; zavrit('Registrace je uzavřená. Napište nám na <a href="mailto:hlidani@prdolata.cz">hlidani@prdolata.cz</a>, zkusíme pro vás místo najít.'); return; }
-    if (INFO.volno < 1) { m.innerHTML = 'Všechna místa jsou obsazená.'; zavrit('Všechna místa jsou obsazená. Napište nám na <a href="mailto:hlidani@prdolata.cz">hlidani@prdolata.cz</a> a dáme vám vědět, když se nějaké uvolní.'); return; }
+    if (INFO.uzavreno) { m.innerHTML = 'Registrace je uzavřená.'; zajemForm('Registrace je uzavřená'); return; }
+    if (INFO.volno < 1) { m.innerHTML = 'Všechna místa jsou obsazená.'; zajemForm('Tentokrát je plno 😢'); return; }
     m.innerHTML = 'Zbývající kapacita jen <b>' + INFO.volno + ' ' + slovoMist(INFO.volno) + '</b>';
     document.querySelectorAll('#deti input').forEach(function (i) { var navic = Number(i.value) - 1; i.disabled = navic > INFO.volnoDalsiDeti; i.parentNode.style.opacity = i.disabled ? .45 : 1; });
+  }
+  /* Vyprodáno / uzavřeno → předregistrace na další event (e-mail do Kanceláře → list ZÁJEMCI – AKCE) */
+  function zajemForm(nadpis) {
+    $('sekce').innerHTML = '<div class="vysledek"><h2 style="margin-top:0">' + esc(nadpis) + '</h2>' +
+      '<p>Další pilates event pro maminky s dětmi plánujeme na <b>prosinec</b>. Nechte nám e-mail a pozvánku vám pošleme jako jedné z prvních – ještě než ho zveřejníme.</p>' +
+      '<form id="fz" novalidate style="padding:0">' +
+        '<label>E-mail<input name="email" type="email" autocomplete="email" required></label>' +
+        '<label>Křestní jméno <small>(nepovinné)</small><input name="jmeno" type="text" autocomplete="given-name"></label>' +
+        '<input name="web" class="past" tabindex="-1" autocomplete="off" aria-hidden="true">' +
+        '<div class="chyba" id="chybaZ"></div>' +
+        '<button class="cta" type="submit" id="odeslatZ" style="margin-top:16px">Chci pozvánku na další event</button>' +
+        '<p class="pozn">Odesláním souhlasíte, že vám pošleme pozvánku na další event Prďolat. E-mail nikomu nedáme.</p>' +
+      '</form></div>';
+    $('fz').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var f = e.target, ch = $('chybaZ'), d = { email: f.email.value.trim(), jmeno: f.jmeno.value.trim(), web: f.web.value };
+      ch.textContent = '';
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(d.email)) { ch.textContent = 'Zkontrolujte prosím e-mail.'; return; }
+      var b = $('odeslatZ'); b.disabled = true; b.textContent = 'Odesílám…';
+      api('udalostZajem', { udaje: d }).then(function () {
+        zavrit('<span class="ok" style="display:block">Děkujeme! Jakmile vypíšeme další termín, pošleme vám pozvánku na <b>' + esc(d.email) + '</b>.</span>');
+      }, function (er) { ch.textContent = er.message; b.disabled = false; b.textContent = 'Chci pozvánku na další event'; });
+    });
   }
   function zavrit(html) { $('sekce').innerHTML = '<div class="vysledek"><p style="margin:0">' + html + '</p></div>'; }
 
@@ -208,7 +231,10 @@
       : d.telefon.replace(/\D/g, '').length < 9 ? 'Zkontrolujte prosím telefon.' : !d.vek ? 'Napište prosím věk dítěte.' : !d.souhlas ? 'Potvrďte prosím souhlas se zpracováním údajů.' : '';
     if (chybi) { ch.textContent = chybi; return; }
     var b = $('odeslat'); b.disabled = true; b.textContent = 'Odesílám…';
-    api('udalostRegistrace', { udaje: d }).then(platba, function (er) { ch.textContent = er.message; b.disabled = false; b.textContent = 'Rezervovat místo'; });
+    api('udalostRegistrace', { udaje: d }).then(platba, function (er) {
+      if (/obsazená|uzavřená/.test(er.message)) { zajemForm(/uzavřená/.test(er.message) ? 'Registrace je uzavřená' : 'Mezitím se místa obsadila 😢'); return; }
+      ch.textContent = er.message; b.disabled = false; b.textContent = 'Rezervovat místo';
+    });
   });
 
   function platba(p) {

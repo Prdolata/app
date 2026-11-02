@@ -187,18 +187,22 @@
     var m = $('mista');
     if (INFO.uzavreno) { m.innerHTML = ''; zajemForm('Registrace je uzavřená'); return; }
     if (INFO.volno < 1) { m.innerHTML = ''; zajemForm('Tentokrát je plno 😢'); return; }
+    // místo je (třeba přišla čerstvá data po starých „plno“) → vrátit rezervaci
+    if ($('zajem') && !$('zajem').querySelector('.ok')) { $('zajem').remove(); $('sekce').style.display = ''; var c0 = document.querySelector('a.cta[href="#rezervace"]'); if (c0) c0.style.display = ''; if ($('rezervace')) $('rezervace').style.display = ''; }
     m.innerHTML = 'Zbývající kapacita jen <b>' + INFO.volno + ' ' + slovoMist(INFO.volno) + '</b>';
     document.querySelectorAll('#deti input').forEach(function (i) { var navic = Number(i.value) - 1; i.disabled = navic > INFO.volnoDalsiDeti; i.parentNode.style.opacity = i.disabled ? .45 : 1; });
   }
   /* Vyprodáno / uzavřeno → předregistrace na další event (e-mail do Kanceláře → list ZÁJEMCI – AKCE) */
   function zajemForm(nadpis) {
     // formulář rovnou nahoru místo tlačítka „Rezervovat místo“, ať lidi nemusí sjíždět
-    var cta = document.querySelector('a.cta[href="#rezervace"]'), sek = $('sekce'), h = $('rezervace');
+    // (vlastní blok #zajem – rezervační formulář se jen schová, kdyby se místo uvolnilo, vrátí se)
+    var cta = document.querySelector('a.cta[href="#rezervace"]'), h = $('rezervace');
     if (cta) cta.style.display = 'none';
     if (h) h.style.display = 'none';
-    if (sek && $('mista') && sek.previousElementSibling !== $('mista')) $('mista').insertAdjacentElement('afterend', sek);
-    if ($('fz')) return;                           // už je vykreslený (např. přišla čerstvá data) – nemazat rozepsané
-    $('sekce').innerHTML = '<div class="vysledek"><h2 style="margin-top:0">' + esc(nadpis) + '</h2>' +
+    $('sekce').style.display = 'none';
+    if ($('zajem')) return;                        // už je vykreslený (např. přišla čerstvá data) – nemazat rozepsané
+    var zd = document.createElement('div'); zd.id = 'zajem'; $('mista').insertAdjacentElement('afterend', zd);
+    zd.innerHTML = '<div class="vysledek"><h2 style="margin-top:0">' + esc(nadpis) + '</h2>' +
       '<p>Další pilates event pro maminky s dětmi plánujeme na <b>prosinec</b>. Nechte nám e-mail a pozvánku vám pošleme jako jedné z prvních – ještě než ho zveřejníme.</p>' +
       '<form id="fz" novalidate style="padding:0">' +
         '<label>E-mail<input name="email" type="email" autocomplete="email" required></label>' +
@@ -215,7 +219,7 @@
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(d.email)) { ch.textContent = 'Zkontrolujte prosím e-mail.'; return; }
       var b = $('odeslatZ'); b.disabled = true; b.textContent = 'Odesílám…';
       api('udalostZajem', { udaje: d }).then(function () {
-        zavrit('<span class="ok" style="display:block">Děkujeme! Jakmile vypíšeme další termín, pošleme vám pozvánku na <b>' + esc(d.email) + '</b>.</span>');
+        $('zajem').innerHTML = '<div class="vysledek"><span class="ok" style="display:block">Děkujeme! Jakmile vypíšeme další termín, pošleme vám pozvánku na <b>' + esc(d.email) + '</b>.</span></div>';
       }, function (er) { ch.textContent = er.message; b.disabled = false; b.textContent = 'Chci pozvánku na další event'; });
     });
   }

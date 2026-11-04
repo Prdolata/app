@@ -462,9 +462,10 @@
       '<div class="pr">Odevzdáno ' + hotovo + ' z ' + S.polozky.length + '</div>' +
       '<h2>📎 Dokumenty</h2>' + S.polozky.map(karta).join('') +
       '<h2>📝 Údaje</h2>' +
-      '<div class="card"><div class="hint">Údaje označené 📝 potřebujeme do smlouvy – opiš je prosím přesně podle občanky.</div>' +
+      '<div class="card"><div class="hint">Údaje označené 📝 potřebujeme do smlouvy – opiš je prosím přesně podle občanky. Pole s <b>*</b> jsou povinná (smlouva, přihlášení u ČSSZ a výplata).</div>' +
       S.udajePole.map(function (u) {
-        return '<label class="f">' + (u.smlouva ? '📝 ' : '') + esc(u.nazev) + '</label>' + (u.area
+        var pov = u.smlouva || u.povinne, prazdne = pov && !String(S.udaje[u.k] || '').trim() && S.zkouseno;
+        return '<label class="f"' + (prazdne ? ' style="color:#c0392b"' : '') + '>' + (u.smlouva ? '📝 ' : '') + esc(u.nazev) + (pov ? ' *' : '') + '</label>' + (u.area
           ? '<textarea id="u-' + u.k + '">' + esc(S.udaje[u.k] || '') + '</textarea>'
           : '<input type="text" id="u-' + u.k + '" value="' + esc(S.udaje[u.k] || '') + '" placeholder="' + esc(u.ph || '') + '">');
       }).join('') +
@@ -547,7 +548,7 @@
     api('udaje', { udaje: udajeZFormulare() })
       .then(function (v) { S = v.data; return api('hotovo'); })
       .then(function () { kresliPodklady(); $('hotovo').disabled = true; $('h-stav').innerHTML = '<span class="ok">Díky! Zuzka dostala zprávu a podklady zkontroluje. 💛</span>'; })
-      .catch(function (e) { $('hotovo').disabled = false; $('h-stav').innerHTML = '<span class="chyba">' + esc(e.message) + '</span>'; });
+      .catch(function (e) { S.zkouseno = true; kresliPodklady(); $('hotovo').disabled = false; $('h-stav').innerHTML = '<span class="chyba">' + esc(e.message) + '</span>'; });
   }
 
   /* ═══════════ SOS / NÁHRADA ═══════════ */

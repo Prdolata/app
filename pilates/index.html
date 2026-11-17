@@ -97,6 +97,20 @@
   .pozn { color: var(--muted); font-size: 13px; margin: 12px 0 0; }
   footer { text-align: center; font-size: 13px; color: var(--muted); margin-top: 30px; }
   footer a { color: var(--muted); }
+  .galerie { margin: 26px -16px 0; position: relative; }
+  .galerie h2 { margin: 0 16px 12px; }
+  .pas { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0 16px; padding: 0 16px 6px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .pas::-webkit-scrollbar { display: none; }
+  .pas figure { margin: 0; flex: 0 0 auto; height: clamp(300px, 82vw, 440px); scroll-snap-align: start; border-radius: 20px; overflow: hidden; background: var(--peach); box-shadow: 0 6px 18px rgba(33,52,114,.12); position: relative; }
+  .pas figure { max-width: min(calc(100vw - 64px), 500px); }
+  .pas img { height: 100%; width: auto; max-width: 100%; object-fit: cover; display: block; }
+  .pas figcaption { position: absolute; left: 12px; bottom: 12px; background: rgba(255,255,255,.92); color: var(--navy); font-weight: 800; font-size: 13px; padding: 6px 11px; border-radius: 999px; }
+  .tecky { display: flex; justify-content: center; gap: 6px; margin-top: 10px; }
+  .tecky button { width: 8px; height: 8px; border-radius: 99px; border: 0; padding: 0; background: var(--line); cursor: pointer; transition: width .25s, background .25s; }
+  .tecky button.on { width: 22px; background: var(--orange); }
+  .sipka { position: absolute; top: calc(50% + 4px); width: 40px; height: 40px; border-radius: 50%; border: 0; background: #fff; color: var(--navy); font-size: 22px; box-shadow: 0 2px 8px rgba(33,52,114,.18); cursor: pointer; display: none; }
+  .sipka.l { left: 6px; } .sipka.r { right: 6px; }
+  @media (hover: hover) and (min-width: 600px) { .sipka { display: block; } }
   @media (min-width: 520px) { h1 { font-size: 50px; } }
 </style>
 </head>
@@ -110,6 +124,22 @@
   <div class="partner"><span>Hlavní partner</span><a href="https://www.sufan.cz" target="_blank" rel="noopener"><img src="sufan.png" alt="Šufan" width="88" height="40"></a></div>
   <a class="cta" href="#rezervace">Rezervovat místo</a>
   <p class="mista" id="mista"></p>
+
+
+  <section class="galerie" aria-label="Fotky z listopadového eventu">
+    <h2>Jak to vypadalo v listopadu</h2>
+    <div class="pas" id="pas">
+      <figure><img src="foto/01.jpg" alt="Maminky cvičí pilates v MessyPlay Karlín" loading="eager"><figcaption>Pilates s lektorkou</figcaption></figure>
+      <figure><img src="foto/02.jpg" alt="Chůva s dětmi u senzorického stolu" loading="eager"><figcaption>Senzorické hraní</figcaption></figure>
+      <figure><img src="foto/03.jpg" alt="Chůva s miminkem u senzorické vany" loading="lazy"><figcaption>Chůvy Prďolat</figcaption></figure>
+      <figure><img src="foto/04.jpg" alt="Chůva s chlapečkem u dětské kuchyňky" loading="lazy"><figcaption>Malí kuchaři</figcaption></figure>
+      <figure><img src="foto/05.jpg" alt="Miminko si hraje s fialovým pískem" loading="lazy"><figcaption>Fialový písek</figcaption></figure>
+      <figure><img src="foto/06.jpg" alt="Prostor MessyPlay Karlín připravený na pilates" loading="lazy"><figcaption>Prostor MessyPlay</figcaption></figure>
+      <figure><img src="foto/07.jpg" alt="Chůva si hraje s dětmi" loading="lazy"><figcaption>Hraní s chůvou</figcaption></figure>
+    </div>
+    <button class="sipka l" type="button" aria-label="Předchozí fotka" onclick="galerie(-1)">‹</button><button class="sipka r" type="button" aria-label="Další fotka" onclick="galerie(1)">›</button>
+    <div class="tecky" id="tecky"></div>
+  </section>
 
   <h2>Co vás čeká</h2>
   <div class="bloky">
@@ -186,6 +216,21 @@
       .then(function (o) { if (!o.ok) throw new Error(o.chyba || 'Něco se pokazilo.'); return o.vysledek.data; });
   }
 
+
+  /* Galerie: swipe (scroll-snap), tečky, šipky na počítači, pomalé samo-posouvání do prvního dotyku */
+  (function () {
+    var pas = $('pas'), tecky = $('tecky'); if (!pas) return;
+    var fotky = pas.querySelectorAll('figure'), stop = false;
+    fotky.forEach(function (f, i) { var b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-label', 'Fotka ' + (i + 1)); b.onclick = function () { stop = true; jdiNa(i); }; tecky.appendChild(b); });
+    function aktivni() { var x = pas.scrollLeft + 20, a = 0; fotky.forEach(function (f, i) { if (f.offsetLeft - pas.offsetLeft <= x) a = i; }); if (pas.scrollLeft + pas.clientWidth >= pas.scrollWidth - 4) a = fotky.length - 1; return a; }
+    function jdiNa(i) { i = (i + fotky.length) % fotky.length; pas.scrollTo({ left: fotky[i].offsetLeft - pas.offsetLeft - 16, behavior: 'smooth' }); }
+    function teckuj() { var a = aktivni(); tecky.querySelectorAll('button').forEach(function (b, i) { b.classList.toggle('on', i === a); }); }
+    window.galerie = function (k) { stop = true; jdiNa(aktivni() + k); };
+    pas.addEventListener('scroll', function () { window.requestAnimationFrame(teckuj); }, { passive: true });
+    ['touchstart', 'pointerdown', 'wheel'].forEach(function (e) { pas.addEventListener(e, function () { stop = true; }, { passive: true }); });
+    teckuj();
+    setInterval(function () { if (!stop && !document.hidden && pas.getBoundingClientRect().top < innerHeight && pas.getBoundingClientRect().bottom > 0) jdiNa(aktivni() + 1); }, 3800);
+  })();
   function slovoMist(n) { return n === 1 ? 'místo' : n >= 2 && n <= 4 ? 'místa' : 'míst'; }
   function ukazMista() {
     if (!INFO) return;

@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Pilates event pro maminky s dětmi · Prďolata</title>
-<meta name="description" content="Pilates event pro maminky s dětmi: 60 minut pilates a 3 hodiny hlídání s chůvami Prďolat. Út 3. 11. 2026, MessyPlay Karlín. 590 Kč, děti v ceně.">
-<meta property="og:title" content="Pilates event pro maminky s dětmi · 3. 11. 2026">
-<meta property="og:description" content="60 minut pilates a 3 hodiny hlídání s chůvami Prďolat. MessyPlay Karlín, 590 Kč, děti v ceně. Jen 17 míst.">
+<title>Pilates event pro maminky s dětmi · 15. 12. · Prďolata</title>
+<meta name="description" content="Pilates event pro maminky s dětmi ve spolupráci se Šufanem: 60 minut pilates a 3 hodiny hlídání s chůvami Prďolat. Út 15. 12. 2026, MessyPlay Karlín. 750 Kč, děti v ceně.">
+<meta property="og:title" content="Pilates event pro maminky s dětmi · 15. 12. 2026">
+<meta property="og:description" content="60 minut pilates a 3 hodiny hlídání s chůvami Prďolat. Hlavní partner Šufan. MessyPlay Karlín, 750 Kč, děti v ceně. Jen 15 míst.">
 <meta property="og:image" content="https://static.wixstatic.com/media/18df3e_12a067f0b848455fbe81b8937a91bde1~mv2.png">
 <meta property="og:url" content="https://app.prdolata.cz/pilates/">
 <meta name="theme-color" content="#FFF5ED">
@@ -14,10 +14,11 @@
 <link rel="preconnect" href="https://script.googleusercontent.com">
 <script>
   /* Volná místa: okamžitě ze souboru stav.json na tomhle webu (obnovuje se každých 5 min), hned potom čerstvě ze serveru. */
-  window.STAV_P = fetch('stav.json?t=' + Date.now()).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+  window.EVENT = 'pilates-2026-12-15';   /* který event v Kanceláři (Udalost.js → UD_EVENTY) */
+  window.STAV_P = fetch('stav.json?t=' + Date.now()).then(function (r) { return r.ok ? r.json() : null; }).then(function (s) { return s && s.event === window.EVENT ? s : null; }).catch(function () { return null; });
   /* Volná místa se začnou načítat hned, ještě než se stáhne zbytek stránky. */
   window.INFO_P = fetch('https://script.google.com/macros/s/AKfycbwMHg_-QUjsM0_TM1Ep-3Z4IJQWNS5K6oinN4xEhXnQwof_Cf4ZdQ7zpaK2hzrNPyUYGg/exec',
-    { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: '{"akce":"udalostInfo"}', redirect: 'follow' })
+    { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ akce: 'udalostInfo', event: window.EVENT }), redirect: 'follow' })
     .then(function (r) { return r.json(); }).then(function (o) { return o && o.ok ? o.vysledek.data : null; }).catch(function () { return null; });
 </script>
 <link rel="icon" href="../favicon.png">
@@ -49,6 +50,10 @@
   .blok .ic { flex: 0 0 44px; height: 44px; border-radius: 12px; background: var(--peach); display: grid; place-items: center; font-size: 22px; }
   .blok b { display: block; font-size: 17px; }
   .blok small { color: var(--muted); font-size: 14px; }
+  .partner { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 0 0 18px; color: var(--muted); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; }
+  .partner a { display: inline-flex; align-items: center; background: #fff; border-radius: 14px; padding: 9px 16px; box-shadow: 0 1px 2px rgba(33,52,114,.08); text-decoration: none; }
+  .partner img { height: 30px; display: block; }
+  .partner .txt { font: 600 22px "DynaPuff", sans-serif; color: #3A2B2E; text-transform: none; letter-spacing: 0; }
   .bonus { margin: 12px 0 0; border: 2px dashed var(--orange); border-radius: 16px; padding: 13px 16px; background: #fff; display: flex; gap: 12px; align-items: center; }
   .bonus .cena { font-family: "DynaPuff", sans-serif; font-size: 22px; color: var(--orange); white-space: nowrap; }
   .bonus small { color: var(--muted); display: block; font-size: 13px; }
@@ -101,7 +106,8 @@
 
   <h1>Pilates event <span>pro maminky s&nbsp;dětmi</span></h1>
   <p class="lead">Chvilka pro vás, zatímco o vaše děti bude postaráno. Přijďte si užít dopoledne plné pilates, odpočinku a času pro sebe.</p>
-  <div class="fakta"><span>Út 3. 11. 2026 · 9:00–12:00</span><span>MessyPlay Karlín</span><span>590 Kč / maminka · děti v ceně</span><span>Děti od 6 měsíců</span></div>
+  <div class="fakta"><span>Út 15. 12. 2026 · 9:00–12:00</span><span>MessyPlay Karlín</span><span>750 Kč / maminka · děti v ceně</span><span>Děti od 6 měsíců</span></div>
+  <div class="partner"><span>Hlavní partner</span><a href="https://www.sufan.cz" target="_blank" rel="noopener"><img src="https://www.sufan.cz/assets/front/images/Logo_web_1.svg" alt="Šufan" onerror="this.outerHTML='&lt;span class=&quot;txt&quot;&gt;Šufan&lt;/span&gt;'"></a></div>
   <a class="cta" href="#rezervace">Rezervovat místo</a>
   <p class="mista" id="mista"></p>
 
@@ -111,7 +117,7 @@
     <div class="blok"><div class="ic">🧸</div><div><b>3 hodiny hlídání s chůvami</b><small>Prďolata, 9:00–12:00</small></div></div>
     <div class="blok"><div class="ic">🎨</div><div><b>Program pro děti</b><small>senzorické a výtvarné hraní v MessyPlay</small></div></div>
   </div>
-  <div class="bonus"><div class="cena">🎁</div><div><b>Welcome balíček pro maminku i dítě</b><small>od našich sponzorů – Šufan, Venira a další</small></div></div>
+  <div class="bonus"><div class="cena">🎁</div><div><b>Welcome balíček pro maminku i dítě</b><small>od hlavního partnera Šufan – kvalitní jídlo s čistým složením pro celou rodinu</small></div></div>
 
   <h2 id="rezervace">Rezervace</h2>
   <div id="sekce">
@@ -139,7 +145,7 @@
       <div class="past" aria-hidden="true"><label>Web<input type="text" name="web" tabindex="-1" autocomplete="off"></label></div>
       <label class="souhlas"><input type="checkbox" name="souhlas"><span>Souhlasím se zpracováním údajů kvůli registraci na akci.</span></label>
       <label class="souhlas"><input type="checkbox" name="novinky"><span>Chci dostávat novinky a nabídky Prďolat. <small>(nepovinné)</small></span></label>
-      <div class="shrnuti">K platbě: <b>590 Kč</b> za maminku · děti v ceně</div>
+      <div class="shrnuti">K platbě: <b>750 Kč</b> za maminku · děti v ceně</div>
       <button class="cta" type="submit" id="odeslat">Rezervovat místo</button>
       <p class="chyba" id="chyba" role="alert"></p>
     </form>
@@ -154,7 +160,7 @@
   <h2>Časté otázky</h2>
   <div class="faq">
     <details><summary>Od jakého věku může dítě přijít?</summary><p>Od 6 měsíců.</p></details>
-    <details><summary>Co když mám víc dětí?</summary><p>Platíte jen jednou, 590 Kč za sebe – děti jsou v ceně. Míst pro sourozence je omezený počet, ve formuláři jen vyberte počet dětí.</p></details>
+    <details><summary>Co když mám víc dětí?</summary><p>Platíte jen jednou, 750 Kč za sebe – děti jsou v ceně. Míst pro sourozence je omezený počet, ve formuláři jen vyberte počet dětí.</p></details>
     <details><summary>Kde budu já, zatímco chůvy hlídají?</summary><p>Ve stejné budově jako děti. Od 10:00 do 11:00 máte pilates s lektorkou, zbytek dopoledne je jen pro vás. Když dítě nebude chtít zůstat, jste hned vedle.</p></details>
     <details><summary>Jak se platí?</summary><p>Po odeslání přihlášky uvidíte platební údaje a QR kód pro bankovní aplikaci. Stejné údaje vám přijdou e-mailem. Místo vám držíme 48 hodin, rezervace platí po připsání platby.</p></details>
         <details><summary>Co si mám přinést?</summary><p>Nic nemusíte. Stačí přijít.</p></details>
@@ -173,7 +179,7 @@
 
   function api(akce, data, pokus) {
     pokus = pokus || 0;
-    return fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ akce: akce }, data || {})), redirect: 'follow' })
+    return fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ akce: akce, event: window.EVENT }, data || {})), redirect: 'follow' })
       .then(function (r) { return r.json(); }, function () {
         if (pokus >= 2) throw new Error('Nepodařilo se spojit se serverem. Zkontrolujte internet a zkuste to prosím znovu.');
         return new Promise(function (ok) { setTimeout(ok, 1200 * (pokus + 1)); }).then(function () { return api(akce, data, pokus + 1); }).then(function (v) { return { ok: true, vysledek: { data: v } }; });
@@ -203,7 +209,7 @@
     if ($('zajem')) return;                        // už je vykreslený (např. přišla čerstvá data) – nemazat rozepsané
     var zd = document.createElement('div'); zd.id = 'zajem'; $('mista').insertAdjacentElement('afterend', zd);
     zd.innerHTML = '<div class="vysledek"><h2 style="margin-top:0">' + esc(nadpis) + '</h2>' +
-      '<p>Další pilates event pro maminky s dětmi plánujeme na <b>prosinec</b>. Nechte nám e-mail a pozvánku vám pošleme jako jedné z prvních – ještě než ho zveřejníme.</p>' +
+      '<p>Další pilates event pro maminky s dětmi zase chystáme. Nechte nám e-mail a pozvánku vám pošleme jako jedné z prvních – ještě než ho zveřejníme.</p>' +
       '<form id="fz" novalidate style="padding:0">' +
         '<label>E-mail<input name="email" type="email" autocomplete="email" required></label>' +
         '<label>Křestní jméno <small>(nepovinné)</small><input name="jmeno" type="text" autocomplete="given-name"></label>' +
@@ -277,12 +283,12 @@
   function scrollTo0() { var s = $('rezervace'); if (s) s.scrollIntoView({ behavior: 'smooth' }); }
 
   /* Poslední známý stav z minulé návštěvy hned, čerstvý ze serveru jakmile dorazí. */
-  try { var ulozeno = JSON.parse(localStorage.getItem('pilates_info') || 'null'); if (ulozeno && Date.now() - ulozeno.t < 6 * 3600000) { INFO = ulozeno.i; INFO._t = ulozeno.t; ukazMista(); } } catch (e) { }
+  try { var ulozeno = JSON.parse(localStorage.getItem('pilates_info_' + window.EVENT) || 'null'); if (ulozeno && Date.now() - ulozeno.t < 6 * 3600000) { INFO = ulozeno.i; INFO._t = ulozeno.t; ukazMista(); } } catch (e) { }
   var ZIVE = false;
   (window.STAV_P || Promise.resolve(null)).then(function (s) { if (s && !ZIVE && (!INFO || !INFO._t || s.t > INFO._t)) { INFO = s; ukazMista(); } });
   (window.INFO_P || Promise.resolve(null)).then(function (i) { return i || api('udalostInfo'); }).then(function (i) {
     ZIVE = true; INFO = i; ukazMista();
-    try { localStorage.setItem('pilates_info', JSON.stringify({ i: i, t: Date.now() })); } catch (e) { }
+    try { localStorage.setItem('pilates_info_' + window.EVENT, JSON.stringify({ i: i, t: Date.now() })); } catch (e) { }
   }, function () { });
 </script>
 </body>

@@ -14,12 +14,12 @@ jobs:
       - uses: actions/checkout@v4
       - name: Načíst stav ze serveru
         run: |
-          curl -sSL --max-time 60 -H 'Content-Type: text/plain;charset=utf-8' -d '{"akce":"udalostInfo"}' \
+          curl -sSL --max-time 60 -H 'Content-Type: text/plain;charset=utf-8' -d '{"akce":"udalostInfo","event":"pilates-2026-12-15"}' \
             'https://script.google.com/macros/s/AKfycbwMHg_-QUjsM0_TM1Ep-3Z4IJQWNS5K6oinN4xEhXnQwof_Cf4ZdQ7zpaK2hzrNPyUYGg/exec' > odpoved.json || echo '{}' > odpoved.json   # výpadek Googlu = zkusit příště, žádná chyba
           node -e '
             let o = {}; try { o = JSON.parse(require("fs").readFileSync("odpoved.json", "utf8")); } catch (e) { }
             if (!o.ok || !o.vysledek || !o.vysledek.data) { console.log("Server neodpověděl:", JSON.stringify(o).slice(0, 300)); process.exit(0); }
-            const d = o.vysledek.data, s = { volno: d.volno, volnoDalsiDeti: d.volnoDalsiDeti, uzavreno: !!d.uzavreno, cena: d.cena, maxDeti: d.maxDeti };
+            const d = o.vysledek.data, s = { volno: d.volno, volnoDalsiDeti: d.volnoDalsiDeti, uzavreno: !!d.uzavreno, cena: d.cena, maxDeti: d.maxDeti, event: d.event };
             const cesta = "pilates/stav.json";
             let stare = null; try { stare = JSON.parse(require("fs").readFileSync(cesta, "utf8")); delete stare.t; } catch (e) { }
             if (JSON.stringify(stare) === JSON.stringify(s)) { console.log("beze změny"); process.exit(0); }

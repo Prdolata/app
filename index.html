@@ -49,7 +49,7 @@
   .btn.big { width: 100%; padding: 14px; font-size: 16px; background: #2e8b57; margin-top: 8px; }
   .msg { font-size: 13px; margin-top: 8px; }
   label.f { display: block; font-size: 13px; font-weight: 700; color: #263a8c; margin: 12px 0 4px; }
-  input[type=text], textarea { width: 100%; padding: 10px; border: 1px solid #c9d3e0; border-radius: 8px; font-size: 15px; font-family: inherit; }
+  input[type=text], select, textarea { width: 100%; padding: 10px; border: 1px solid #c9d3e0; border-radius: 8px; font-size: 15px; font-family: inherit; background: #fff; }
   textarea { min-height: 70px; }
   .rok { width: 74px !important; padding: 8px !important; }
   /* SOS */
@@ -465,9 +465,8 @@
       '<div class="card"><div class="hint">Údaje označené 📝 potřebujeme do smlouvy – opiš je prosím přesně podle občanky. Pole s <b>*</b> jsou povinná (smlouva, přihlášení u ČSSZ a výplata).</div>' +
       S.udajePole.map(function (u) {
         var pov = u.smlouva || u.povinne, prazdne = pov && !String(S.udaje[u.k] || '').trim() && S.zkouseno;
-        return '<label class="f"' + (prazdne ? ' style="color:#c0392b"' : '') + '>' + (u.smlouva ? '📝 ' : '') + esc(u.nazev) + (pov ? ' *' : '') + '</label>' + (u.area
-          ? '<textarea id="u-' + u.k + '">' + esc(S.udaje[u.k] || '') + '</textarea>'
-          : '<input type="text" id="u-' + u.k + '" value="' + esc(S.udaje[u.k] || '') + '" placeholder="' + esc(u.ph || '') + '">');
+        return '<label class="f"' + (prazdne ? ' style="color:#c0392b"' : '') + '>' + (u.smlouva ? '📝 ' : '') + esc(u.stitek || u.nazev) + (pov ? ' *' : '') + '</label>' +
+          (u.hint ? '<div class="hint">' + esc(u.hint) + '</div>' : '') + poleUdaje(u, S.udaje[u.k] || '');
       }).join('') +
       '<div class="akce"><button class="btn" id="u-btn" onclick="ulozUdaje()">Uložit údaje</button><span class="msg" id="u-stav"></span></div></div>' +
       '<button class="btn big" id="hotovo" onclick="hotovoPodklady()">✅ Hotovo – dát vědět Zuzce</button>' +
@@ -534,7 +533,53 @@
       .catch(function (e) { $('s-' + i).innerHTML = '<span class="chyba">' + esc(e.message) + '</span>'; });
   }
 
-  function udajeZFormulare() { var u = {}; S.udajePole.forEach(function (x) { u[x.k] = $('u-' + x.k).value; }); return u; }
+  /* pole údajů: text, výběr (volby + případně „Jiné…“) a adresa po částech (ulice, PSČ, obec, stát) */
+  function poleVyber(id, volby, jine, v, ph) {
+    v = String(v || '').trim();
+    if (v && volby.indexOf(v) < 0) { var kod = (v.match(/\d{3}/) || [''])[0], podobna = volby.filter(function (x) { var k = x.split(' ')[0]; return k === v.split(/[\s(]/)[0] || (/^\d{3}$/.test(k) && k === kod); })[0]; if (podobna) v = podobna; }   // „111“ → „111 – VZP“
+    var znam = volby.indexOf(v) >= 0, vlastni = v && !znam;
+    var o = '<option value="">— vyber —</option>' + volby.map(function (x) { return '<option' + (x === v ? ' selected' : '') + '>' + esc(x) + '</option>'; }).join('') +
+      (vlastni && !jine ? '<option selected>' + esc(v) + '</option>' : '') +
+      (jine ? '<option value="__jine"' + (vlastni ? ' selected' : '') + '>Jiné…</option>' : '');
+    return '<select id="' + id + '"' + (jine ? ' onchange="$(\'' + id + '-j\').style.display = this.value === \'__jine\' ? \'\' : \'none\'"' : '') + '>' + o + '</select>' +
+      (jine ? '<input type="text" id="' + id + '-j" value="' + esc(vlastni ? v : '') + '" placeholder="' + esc(ph || 'napiš') + '" style="margin-top:6px;' + (vlastni ? '' : 'display:none') + '">' : '');
+  }
+  function hodnotaVyberu(id) { var s = $(id); return s.value === '__jine' ? $(id + '-j').value.trim() : s.value; }
+  function rozdelAdresu(s) {
+    s = String(s || '').replace(/\s+/g, ' ').trim();
+    var o = { ulice: '', psc: '', obec: '', stat: '' }; if (!s) return o;
+    var m = s.match(/\b(\d{3})\s?(\d{2})\b/);
+    if (m) { o.psc = m[1] + ' ' + m[2]; s = (s.slice(0, m.index) + ' ' + s.slice(m.index + m[0].length)).replace(/\s*,\s*,/g, ',').trim(); }
+    var c = s.split(',').map(function (x) { return x.trim(); }).filter(Boolean);
+    if (c.length > 1 && /^(česk|cesk|slovensk|ukrajin|polsk)/i.test(c[c.length - 1])) o.stat = c.pop();
+    o.ulice = c.shift() || ''; o.obec = c.join(', ');
+    return o;
+  }
+  function poleUdaje(u, v) {
+    var id = 'u-' + u.k;
+    if (u.area) return '<textarea id="' + id + '">' + esc(v) + '</textarea>';
+    if (u.volby) return poleVyber(id, u.volby, u.jine, v);
+    if (u.typ === 'adresa') {
+      var a = rozdelAdresu(v);
+      return '<input type="text" id="' + id + '-ulice" value="' + esc(a.ulice) + '" placeholder="ulice a číslo domu, např. Hartigova 1061/121">' +
+        '<div style="display:flex;gap:6px;margin-top:6px"><input type="text" inputmode="numeric" id="' + id + '-psc" value="' + esc(a.psc) + '" placeholder="PSČ" style="flex:0 0 7em">' +
+        '<input type="text" id="' + id + '-obec" value="' + esc(a.obec) + '" placeholder="obec / město, např. Praha 3" style="flex:1"></div>' +
+        '<div style="margin-top:6px">' + poleVyber(id + '-stat', ['Česko', 'Slovensko', 'Ukrajina', 'Polsko'], true, a.stat || (v ? (/^[089]/.test(a.psc) ? 'Slovensko' : 'Česko') : ''), 'stát') + '</div>';
+    }
+    return '<input type="text" id="' + id + '" value="' + esc(v) + '" placeholder="' + esc(u.ph || '') + '">';
+  }
+  function hodnotaUdaje(u) {
+    var id = 'u-' + u.k;
+    if (u.volby) return hodnotaVyberu(id);
+    if (u.typ === 'adresa') {
+      var ul = $(id + '-ulice').value.trim(), psc = $(id + '-psc').value.replace(/\D/g, ''), ob = $(id + '-obec').value.trim(), st = hodnotaVyberu(id + '-stat');
+      if (psc.length === 5) psc = psc.slice(0, 3) + ' ' + psc.slice(3);
+      if (!ul && !psc && !ob) return '';
+      return [ul, [psc, ob].filter(Boolean).join(' '), st && st !== 'Česko' ? st : ''].filter(Boolean).join(', ');
+    }
+    return $(id).value;
+  }
+  function udajeZFormulare() { var u = {}; S.udajePole.forEach(function (x) { u[x.k] = hodnotaUdaje(x); }); return u; }
 
   function ulozUdaje() {
     $('u-btn').disabled = true; $('u-stav').textContent = '⏳ Ukládám…';

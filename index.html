@@ -452,37 +452,45 @@
 
   /* ═══════════ PODKLADY CHŮVY ═══════════ */
   function kresliPodklady() {
-    var hotovo = S.polozky.filter(function (p) { return p.stav !== 'chybi' || p.nepodepisuje; }).length;
-    var pct = Math.round(100 * hotovo / S.polozky.length);
+    var Z = S.zadost && !S.vse ? S.zadost : null;   // žádost o aktualizaci → jen vyžádané položky
+    var vidim = S.polozky.map(function (p, i) { return { p: p, i: i }; }).filter(function (x) { return !Z || x.p.vyzadano; });
+    var hotovo = vidim.filter(function (x) { return x.p.stav !== 'chybi' || x.p.nepodepisuje; }).length;
+    var pct = vidim.length ? Math.round(100 * hotovo / vidim.length) : 100;
+    var ukazUdaje = !Z || Z.udaje;
+    var uvod = !Z ? '<p class="lead">Sem nahraj podklady k nástupu. U každé položky klikni na <b>Nahrát</b> (na mobilu můžeš rovnou vyfotit). Nemusíš všechno najednou – na odkaz se můžeš kdykoli vrátit.</p>'
+      : Z.druh === 'ruzovka' ? '<p class="lead">Prosíme tě o <b>růžové prohlášení na rok ' + esc(Z.rok) + '</b>. Nahraj podepsané prohlášení, nebo klikni na <b>Nechci podepisovat u vás</b>.</p>'
+      : '<p class="lead">Prosíme tě o <b>aktualizaci podkladů</b> – stačí nahrát jen to, co je níž. Na mobilu můžeš rovnou vyfotit.</p>';
     $('app').innerHTML =
       '<h1>Ahoj! 👋</h1>' +
-      '<div class="hint" style="margin-bottom:8px">Podklady: <b>' + esc(S.jmeno) + '</b></div>' +
-      '<p class="lead">Sem nahraj podklady k nástupu. U každé položky klikni na <b>Nahrát</b> (na mobilu můžeš rovnou vyfotit). Nemusíš všechno najednou – na odkaz se můžeš kdykoli vrátit.</p>' +
+      '<div class="hint" style="margin-bottom:8px">Podklady: <b>' + esc(S.jmeno) + '</b></div>' + uvod +
+      (Z && Z.vzkaz ? '<div class="card" style="background:#fff8e6"><div class="hint">Vzkaz od Zuzky</div>' + esc(Z.vzkaz).replace(/\n/g, '<br>') + '</div>' : '') +
       '<div class="bar"><i style="width:' + pct + '%"></i></div>' +
-      '<div class="pr">Odevzdáno ' + hotovo + ' z ' + S.polozky.length + '</div>' +
-      '<h2>📎 Dokumenty</h2>' + S.polozky.map(karta).join('') +
-      '<h2>📝 Údaje</h2>' +
-      '<div class="card"><div class="hint">Údaje označené 📝 potřebujeme do smlouvy – opiš je prosím přesně podle občanky. Pole s <b>*</b> jsou povinná (smlouva, přihlášení u ČSSZ a výplata).</div>' +
+      '<div class="pr">' + (Z ? 'Hotovo ' : 'Odevzdáno ') + hotovo + ' z ' + vidim.length + '</div>' +
+      (vidim.length ? '<h2>📎 Dokumenty</h2>' + vidim.map(function (x) { return karta(x.p, x.i); }).join('') : '') +
+      (ukazUdaje ? '<h2>📝 Údaje</h2>' +
+      '<div class="card"><div class="hint">' + (Z ? 'Zkontroluj prosím, jestli všechno platí, a co se změnilo, oprav. ' : '') + 'Údaje označené 📝 potřebujeme do smlouvy – opiš je prosím přesně podle občanky. Pole s <b>*</b> jsou povinná (smlouva, přihlášení u ČSSZ a výplata).</div>' +
       S.udajePole.map(function (u) {
         var pov = u.smlouva || u.povinne, prazdne = pov && !String(S.udaje[u.k] || '').trim() && S.zkouseno;
         return '<label class="f"' + (prazdne ? ' style="color:#c0392b"' : '') + '>' + (u.smlouva ? '📝 ' : '') + esc(u.stitek || u.nazev) + (pov ? ' *' : '') + '</label>' +
           (u.hint ? '<div class="hint">' + esc(u.hint) + '</div>' : '') + poleUdaje(u, S.udaje[u.k] || '');
       }).join('') +
-      '<div class="akce"><button class="btn" id="u-btn" onclick="ulozUdaje()">Uložit údaje</button><span class="msg" id="u-stav"></span></div></div>' +
+      '<div class="akce"><button class="btn" id="u-btn" onclick="ulozUdaje()">' + (Z ? 'Uložit (údaje platí)' : 'Uložit údaje') + '</button><span class="msg" id="u-stav"></span></div></div>' : '') +
       '<button class="btn big" id="hotovo" onclick="hotovoPodklady()">✅ Hotovo – dát vědět Zuzce</button>' +
-      '<div class="msg" id="h-stav" style="text-align:center"></div>';
-    S.polozky.forEach(function (p, i) { pripravDrop(i); });
+      '<div class="msg" id="h-stav" style="text-align:center"></div>' +
+      (Z ? '<p class="hint" style="text-align:center;margin-top:18px"><a href="#" onclick="S.vse=true;kresliPodklady();return false">Zobrazit všechny moje podklady</a></p>' : '');
+    vidim.forEach(function (x) { pripravDrop(x.i); });
   }
 
   function karta(p, i) {
     var badge = p.nepodepisuje ? '<span class="badge b-ok">nepodepisuji u vás</span>'
       : p.stav === 'ok' ? '<span class="badge b-ok">✓ máme</span>'
       : p.stav === 'ceka' ? '<span class="badge b-ceka">nahráno' + (p.pocet > 1 ? ' (' + p.pocet + ')' : '') + '</span>'
-      : '<span class="badge b-chybi">chybí</span>';
+      : '<span class="badge b-chybi">' + (p.vyzadano && S.zadost && !S.vse ? 'prosíme o novou' : 'chybí') + '</span>';
     var ruz = p.ruzovka ? '<span class="hint">rok</span><input type="text" class="rok" id="rok-' + i + '" value="' + S.rok + '">' +
       (p.nepodepisuje ? '' : '<button class="btn sec" onclick="ruzovkaNe(' + i + ')">Nechci podepisovat u vás</button>') : '';
     return '<div class="card" id="k-' + i + '">' +
-      '<div class="top"><div><div class="nazev">' + esc(p.nazev) + '</div><div class="popis">' + esc(p.popis) + '</div></div>' + badge + '</div>' +
+      '<div class="top"><div><div class="nazev">' + esc(p.nazev) + '</div><div class="popis">' + esc(p.popis) + '</div>' +
+        (p.vyzadano && p.posledni ? '<div class="hint">Naposledy jsi poslala ' + esc(p.posledni) + ' – prosíme o novou verzi.</div>' : '') + '</div>' + badge + '</div>' +
       '<div class="akce"><label class="btn ' + (p.stav === 'chybi' ? '' : 'sec') + '">' + (p.stav === 'chybi' ? '⬆️ Nahrát' : '⬆️ Nahrát další') +
       '<input type="file" ' + (p.vice ? 'multiple' : '') + ' accept="image/*,application/pdf,.doc,.docx,.odt" style="display:none" onchange="nahraj(' + i + ', this.files)"></label>' + ruz + '</div>' +
       '<div class="msg" id="s-' + i + '"></div></div>';
@@ -590,8 +598,9 @@
 
   function hotovoPodklady() {
     $('hotovo').disabled = true; $('h-stav').textContent = '⏳ Odesílám…';
-    api('udaje', { udaje: udajeZFormulare() })
-      .then(function (v) { S = v.data; return api('hotovo'); })
+    var maUdaje = !!$('u-btn');   // při žádosti bez údajů formulář na stránce není – údaje se pak neukládají (jinak by se smazaly)
+    (maUdaje ? api('udaje', { udaje: udajeZFormulare() }).then(function (v) { S = v.data; }) : Promise.resolve())
+      .then(function () { return api('hotovo'); })
       .then(function () { kresliPodklady(); $('hotovo').disabled = true; $('h-stav').innerHTML = '<span class="ok">Díky! Zuzka dostala zprávu a podklady zkontroluje. 💛</span>'; })
       .catch(function (e) { S.zkouseno = true; kresliPodklady(); $('hotovo').disabled = false; $('h-stav').innerHTML = '<span class="chyba">' + esc(e.message) + '</span>'; });
   }

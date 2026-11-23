@@ -191,7 +191,7 @@
     <details><summary>Od jakého věku může dítě přijít?</summary><p>Od 6 měsíců.</p></details>
     <details><summary>Co když mám víc dětí?</summary><p>Platíte jen jednou, 750 Kč za sebe – děti jsou v ceně. Pro sourozence máme tentokrát jen jedno místo – ve formuláři vyberte 2 děti, dokud je volné.</p></details>
     <details><summary>Kde budu já, zatímco chůvy hlídají?</summary><p>Ve stejné budově jako děti. Od 10:00 do 11:00 máte pilates s lektorkou, zbytek dopoledne je jen pro vás. Když dítě nebude chtít zůstat, jste hned vedle.</p></details>
-    <details><summary>Jak se platí?</summary><p>Po odeslání přihlášky uvidíte platební údaje a QR kód pro bankovní aplikaci. Stejné údaje vám přijdou e-mailem. Místo vám držíme 48 hodin, rezervace platí po připsání platby.</p></details>
+    <details><summary>Jak se platí?</summary><p>Po odeslání přihlášky uvidíte platební údaje a QR kód pro bankovní aplikaci. Stejné údaje vám přijdou e-mailem. Místo vám držíme 24 hodin, rezervace platí po připsání platby – zaplaťte proto prosím co nejdřív, ideálně hned okamžitou platbou.</p></details>
         <details><summary>Co si mám přinést?</summary><p>Nic nemusíte. Stačí přijít.</p></details>
   </div>
 
@@ -302,7 +302,7 @@
     var kop = function (t) { return '<button type="button" class="kop" data-t="' + esc(t) + '">Kopírovat</button>'; };
     $('sekce').innerHTML = '<div class="vysledek">' +
       '<h2>' + (p.znovu ? 'Vaši přihlášku už máme' : 'Máme vaši přihlášku 🤍') + '</h2>' +
-      '<p class="drzime">Místo vám držíme do <b>' + esc(p.drzimeDo) + '</b>. Rezervace platí, jakmile dorazí platba.</p>' +
+      '<p class="drzime">Místo vám držíme do <b>' + esc(p.drzimeDo) + '</b>. Zaplaťte prosím hned – ideálně okamžitou platbou přes QR kód. Rezervace platí, jakmile dorazí platba.</p>' +
       '<div class="qr" id="qr"></div>' +
       '<dl class="plat">' +
         '<dt>Částka</dt><dd>' + esc(p.castka) + ' Kč</dd><span></span>' +
